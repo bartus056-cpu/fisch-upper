@@ -1,18 +1,21 @@
 :root {
   color-scheme: light;
-  --ink: #17211d;
-  --muted: #5d6b64;
-  --paper: #f5f7f2;
+  --ink: #10212b;
+  --muted: #60727c;
+  --paper: #eef6f5;
   --surface: #ffffff;
-  --line: #d9e1d8;
-  --line-strong: #b6c5bb;
-  --water: #0b6f79;
-  --water-dark: #084d55;
-  --reed: #6f7d25;
-  --sun: #d68b1f;
+  --surface-soft: #f7fbfb;
+  --line: #d5e5e6;
+  --line-strong: #aac3c8;
+  --water: #087cbd;
+  --water-dark: #075d8d;
+  --deep: #133b4a;
+  --reed: #6b7d1e;
+  --sun: #d68a18;
   --rose: #b84a5a;
-  --blue: #2c67a3;
-  --shadow: 0 14px 40px rgba(21, 35, 31, 0.1);
+  --blue: #1498e1;
+  --shadow: 0 18px 45px rgba(16, 33, 43, 0.1);
+  --shadow-soft: 0 10px 28px rgba(16, 33, 43, 0.08);
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
@@ -25,7 +28,8 @@
 body {
   margin: 0;
   min-width: 320px;
-  background: var(--paper);
+  background:
+    linear-gradient(180deg, #e7f4f7 0, #f6f8f2 360px, #eef4ee 100%);
   color: var(--ink);
   overflow-x: hidden;
 }
@@ -42,13 +46,18 @@ button {
 }
 
 .app-header {
+  position: sticky;
+  top: 0;
+  z-index: 900;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  padding: 18px clamp(16px, 3vw, 34px);
-  background: #e8efe9;
-  border-bottom: 1px solid var(--line);
+  padding: 14px clamp(16px, 3vw, 34px);
+  background: rgba(248, 252, 251, 0.92);
+  border-bottom: 1px solid rgba(168, 194, 197, 0.55);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 6px 22px rgba(16, 33, 43, 0.06);
 }
 
 .brand,
@@ -62,16 +71,32 @@ button {
 }
 
 .brand {
-  gap: 14px;
+  gap: 12px;
   min-width: 0;
 }
 
 .brand-logo {
-  width: 54px;
-  height: 54px;
-  border-radius: 12px;
+  width: 58px;
+  height: 58px;
+  border-radius: 14px;
   object-fit: cover;
-  box-shadow: 0 8px 22px rgba(8, 124, 189, 0.2);
+  background: #dff5ff;
+  box-shadow:
+    0 12px 30px rgba(8, 124, 189, 0.24),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.65);
+}
+
+.brand-copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.brand-copy span {
+  font-size: clamp(1.35rem, 2.2vw, 1.95rem);
+  font-weight: 900;
+  line-height: 1;
+  color: #0b1b25;
 }
 
 h1,
@@ -114,19 +139,20 @@ h2 {
 .app-shell {
   width: min(1540px, 100%);
   margin: 0 auto;
-  padding: 18px clamp(12px, 2vw, 26px) 24px;
+  padding: 18px clamp(12px, 2vw, 28px) 24px;
 }
 
 .control-strip {
   display: grid;
   grid-template-columns: minmax(180px, 1.3fr) repeat(4, minmax(120px, 0.8fr)) auto auto;
   align-items: end;
-  gap: 10px;
-  padding: 12px;
-  background: var(--surface);
+  gap: 12px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.88);
   border: 1px solid var(--line);
   border-radius: 8px;
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(10px);
 }
 
 .field {
@@ -136,7 +162,7 @@ h2 {
 }
 
 .field span {
-  font-size: 0.74rem;
+  font-size: 0.72rem;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0;
@@ -147,12 +173,13 @@ h2 {
 .field textarea {
   width: 100%;
   min-width: 0;
-  min-height: 42px;
+  min-height: 44px;
   border: 1px solid var(--line-strong);
-  border-radius: 6px;
-  padding: 9px 10px;
+  border-radius: 8px;
+  padding: 10px 12px;
   color: var(--ink);
-  background: #fff;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
 }
 
 .field textarea {
@@ -172,8 +199,8 @@ button:focus-visible,
 .icon-button,
 .icon-only {
   border: 0;
-  min-height: 42px;
-  border-radius: 6px;
+  min-height: 44px;
+  border-radius: 8px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -183,26 +210,29 @@ button:focus-visible,
 }
 
 .primary-button {
-  padding: 0 14px;
+  padding: 0 16px;
   color: #fff;
-  background: var(--water);
+  background: linear-gradient(135deg, var(--water), #0b8a95);
+  box-shadow: 0 10px 22px rgba(8, 124, 189, 0.22);
 }
 
 .primary-button:hover {
-  background: var(--water-dark);
+  background: linear-gradient(135deg, var(--water-dark), #06707a);
 }
 
 .icon-button {
-  padding: 0 12px;
+  padding: 0 14px;
   color: #fff;
-  background: #2f4a3e;
+  background: var(--deep);
+  box-shadow: 0 8px 18px rgba(19, 59, 74, 0.16);
 }
 
 .icon-button.ghost,
 .icon-only {
   color: var(--ink);
-  background: #eef3ee;
+  background: rgba(255, 255, 255, 0.7);
   border: 1px solid var(--line);
+  box-shadow: none;
 }
 
 .icon-button.ghost:hover,
@@ -226,10 +256,10 @@ button:focus-visible,
 
 .workspace {
   display: grid;
-  grid-template-columns: minmax(340px, 0.8fr) minmax(480px, 1.2fr);
+  grid-template-columns: minmax(350px, 0.78fr) minmax(540px, 1.22fr);
   grid-template-areas: "weather map";
-  gap: 16px;
-  margin-top: 16px;
+  gap: 18px;
+  margin-top: 18px;
   align-items: start;
 }
 
@@ -244,7 +274,7 @@ button:focus-visible,
 .weather-column,
 .map-column {
   display: grid;
-  gap: 16px;
+  gap: 18px;
   min-width: 0;
 }
 
@@ -253,16 +283,17 @@ button:focus-visible,
 .album-section,
 .map-section {
   min-width: 0;
-  background: var(--surface);
+  background: rgba(255, 255, 255, 0.9);
   border: 1px solid var(--line);
   border-radius: 8px;
   box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
 }
 
 .panel,
 .spot-editor,
 .album-section {
-  padding: 16px;
+  padding: 18px;
 }
 
 .panel-title-row,
@@ -274,28 +305,32 @@ button:focus-visible,
 }
 
 .eyebrow {
-  margin-bottom: 3px;
+  margin-bottom: 4px;
   font-size: 0.72rem;
   font-weight: 850;
   text-transform: uppercase;
   letter-spacing: 0;
+  color: #4a6872;
 }
 
 .score-ring {
-  width: 78px;
-  height: 78px;
+  width: 82px;
+  height: 82px;
   display: grid;
   place-items: center;
   align-content: center;
   border-radius: 50%;
-  border: 8px solid var(--line);
+  border: 7px solid #d9e8df;
   background:
     radial-gradient(circle at center, #ffffff 61%, transparent 62%),
     conic-gradient(var(--water) 0deg, var(--line) 0deg);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.9),
+    0 8px 20px rgba(16, 33, 43, 0.1);
 }
 
 .score-ring strong {
-  font-size: 1.35rem;
+  font-size: 1.45rem;
   line-height: 1;
 }
 
@@ -309,27 +344,27 @@ button:focus-visible,
 }
 
 .advice-box {
-  margin-top: 12px;
-  padding: 11px 12px;
+  margin-top: 14px;
+  padding: 13px 14px;
   border-left: 4px solid var(--sun);
-  background: #fff8ea;
-  border-radius: 6px;
+  background: linear-gradient(90deg, #fff7e9, #fffaf1);
+  border-radius: 8px;
   line-height: 1.45;
 }
 
 .metric-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 14px;
+  gap: 11px;
+  margin-top: 16px;
 }
 
 .metric {
-  min-height: 76px;
-  padding: 12px;
+  min-height: 78px;
+  padding: 13px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fbfcfa;
+  background: linear-gradient(180deg, #ffffff, var(--surface-soft));
 }
 
 .metric span {
@@ -341,8 +376,8 @@ button:focus-visible,
 
 .metric strong {
   display: block;
-  margin-top: 5px;
-  font-size: 1.05rem;
+  margin-top: 6px;
+  font-size: 1.08rem;
   overflow-wrap: anywhere;
 }
 
@@ -360,15 +395,27 @@ button:focus-visible,
 .photo-card {
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fbfcfa;
+  background: rgba(255, 255, 255, 0.86);
 }
 
 .hour-card {
   display: grid;
   grid-template-columns: 74px minmax(0, 1fr) 54px;
-  gap: 10px;
+  gap: 12px;
   align-items: center;
-  padding: 10px;
+  padding: 11px;
+  transition:
+    border-color 150ms ease,
+    transform 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.hour-card:hover,
+.spot-item:hover,
+.photo-card:hover {
+  border-color: #b5d2d6;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(16, 33, 43, 0.07);
 }
 
 .hour-time {
@@ -394,12 +441,13 @@ button:focus-visible,
 .hour-score {
   display: grid;
   place-items: center;
-  width: 44px;
-  height: 44px;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
   font-weight: 850;
   color: #fff;
   background: var(--reed);
+  box-shadow: 0 8px 16px rgba(16, 33, 43, 0.12);
 }
 
 .marine-item {
@@ -417,17 +465,19 @@ button:focus-visible,
 
 .map-section {
   overflow: hidden;
+  box-shadow: 0 22px 55px rgba(16, 33, 43, 0.13);
 }
 
 .map-toolbar {
-  padding: 14px 16px;
+  padding: 16px 18px;
   border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.72);
 }
 
 .map {
   width: 100%;
-  min-height: 520px;
-  height: min(62vh, 720px);
+  min-height: 550px;
+  height: min(66vh, 760px);
   background: #dbe8e2;
 }
 
@@ -456,7 +506,7 @@ button:focus-visible,
 .popup-actions button {
   min-height: 34px;
   border: 0;
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 0 10px;
   color: #fff;
   background: var(--water);
@@ -465,8 +515,8 @@ button:focus-visible,
 .spot-form,
 .photo-form {
   display: grid;
-  gap: 10px;
-  margin-top: 12px;
+  gap: 12px;
+  margin-top: 14px;
 }
 
 .spot-form {
@@ -508,12 +558,12 @@ button:focus-visible,
 
 .tiny-button {
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: 8px;
   min-width: 36px;
   min-height: 36px;
   display: grid;
   place-items: center;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.8);
   color: var(--ink);
 }
 
@@ -522,7 +572,7 @@ button:focus-visible,
 }
 
 .album-section {
-  margin-top: 16px;
+  margin-top: 18px;
 }
 
 .photo-form {
@@ -532,13 +582,13 @@ button:focus-visible,
 
 .file-drop {
   min-height: 84px;
-  border: 2px dashed var(--line-strong);
+  border: 2px dashed #9fc7d0;
   border-radius: 8px;
   display: grid;
   place-items: center;
   gap: 2px;
   padding: 10px;
-  background: #fbfcfa;
+  background: linear-gradient(180deg, #f4fbff, #fbfcfa);
   text-align: center;
   cursor: pointer;
 }
@@ -590,7 +640,7 @@ button:focus-visible,
   border: 1px dashed var(--line-strong);
   border-radius: 8px;
   color: var(--muted);
-  background: #fbfcfa;
+  background: rgba(255, 255, 255, 0.72);
 }
 
 .app-footer {
@@ -598,7 +648,8 @@ button:focus-visible,
   justify-content: space-between;
   gap: 14px;
   padding: 16px clamp(16px, 3vw, 34px) 24px;
-  border-top: 1px solid var(--line);
+  border-top: 1px solid rgba(168, 194, 197, 0.5);
+  background: rgba(255, 255, 255, 0.45);
 }
 
 .visually-hidden {
@@ -665,6 +716,16 @@ button:focus-visible,
   .album-head,
   .map-toolbar {
     align-items: flex-start;
+  }
+
+  .map-toolbar {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .map-actions,
+  .map-actions .icon-button {
+    width: 100%;
   }
 
   .weather-now .panel-title-row {

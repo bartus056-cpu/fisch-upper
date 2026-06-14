@@ -11,6 +11,12 @@
    - `styles.css`
    - `app.js`
    - `manifest.webmanifest`
+   - `logo.png`
+   - `icon-192.png`
+   - `icon-512.png`
+   - `icon-180.png`
+   - `favicon-32.png`
+   - `favicon-16.png`
    - folder `assets`
    - `README.md`
 7. Kliknij `Commit changes`.
