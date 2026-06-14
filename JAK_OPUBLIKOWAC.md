@@ -10,6 +10,8 @@
    - `index.html`
    - `styles.css`
    - `app.js`
+   - `manifest.webmanifest`
+   - folder `assets`
    - `README.md`
 7. Kliknij `Commit changes`.
 8. Wejdz w `Settings` -> `Pages`.

@@ -8,6 +8,11 @@
       content="Aplikacja wedkarska dla Polski z prognoza pogody, danymi IMGW, mapa lowisk i albumem zdjec."
     />
     <title>Fisch Upper</title>
+    <meta name="theme-color" content="#087cbd" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" type="image/png" sizes="32x32" href="./assets/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="./assets/favicon-16.png" />
+    <link rel="apple-touch-icon" href="./assets/icon-180.png" />
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -18,11 +23,8 @@
   <body>
     <header class="app-header">
       <div class="brand">
-        <span class="brand-mark" aria-hidden="true">PL</span>
-        <div>
-          <h1>Fisch Upper</h1>
-          <p>Polska prognoza, dane IMGW, mapa lowisk i album wypraw</p>
-        </div>
+        <img class="brand-logo" src="./assets/icon-96.png" alt="" aria-hidden="true" />
+        <h1>Fisch Upper</h1>
       </div>
       <div class="header-actions">
         <button class="icon-button" id="exportDataButton" type="button" title="Eksportuj dane">
