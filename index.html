@@ -28,17 +28,6 @@
           <span>Fisch Upper</span>
         </div>
       </div>
-      <div class="header-actions">
-        <button class="icon-button" id="exportDataButton" type="button" title="Eksportuj dane">
-          <i data-lucide="download"></i>
-          <span>Eksport</span>
-        </button>
-        <button class="icon-button ghost" id="importDataButton" type="button" title="Importuj dane">
-          <i data-lucide="upload"></i>
-          <span>Import</span>
-        </button>
-        <input id="importDataInput" type="file" accept="application/json" hidden />
-      </div>
     </header>
 
     <main class="app-shell">
@@ -218,6 +207,27 @@
           </button>
         </form>
         <div class="album-grid" id="albumGrid"></div>
+      </section>
+
+      <section class="settings-section" aria-labelledby="settingsHeading">
+        <div class="settings-head">
+          <div>
+            <p class="eyebrow">Ustawienia</p>
+            <h2 id="settingsHeading">Kopia danych</h2>
+          </div>
+          <p>Zapisz albo przywroc swoje lowiska, notatki i album zdjec.</p>
+        </div>
+        <div class="settings-actions">
+          <button class="icon-button" id="exportDataButton" type="button" title="Eksportuj dane">
+            <i data-lucide="download"></i>
+            <span>Eksportuj kopie</span>
+          </button>
+          <button class="icon-button ghost" id="importDataButton" type="button" title="Importuj dane">
+            <i data-lucide="upload"></i>
+            <span>Importuj kopie</span>
+          </button>
+          <input id="importDataInput" type="file" accept="application/json" hidden />
+        </div>
       </section>
     </main>
 

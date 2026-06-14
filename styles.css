@@ -281,6 +281,7 @@ button:focus-visible,
 .panel,
 .spot-editor,
 .album-section,
+.settings-section,
 .map-section {
   min-width: 0;
   background: rgba(255, 255, 255, 0.9);
@@ -292,12 +293,14 @@ button:focus-visible,
 
 .panel,
 .spot-editor,
-.album-section {
+.album-section,
+.settings-section {
   padding: 18px;
 }
 
 .panel-title-row,
 .album-head,
+.settings-head,
 .map-toolbar {
   justify-content: space-between;
   gap: 12px;
@@ -571,8 +574,34 @@ button:focus-visible,
   background: #edf5f0;
 }
 
-.album-section {
+.album-section,
+.settings-section {
   margin-top: 18px;
+}
+
+.settings-section {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+}
+
+.settings-head {
+  display: flex;
+  align-items: center;
+}
+
+.settings-head p:not(.eyebrow) {
+  color: var(--muted);
+  max-width: 520px;
+  line-height: 1.45;
+}
+
+.settings-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .photo-form {
@@ -714,6 +743,7 @@ button:focus-visible,
 
   .panel-title-row,
   .album-head,
+  .settings-head,
   .map-toolbar {
     align-items: flex-start;
   }
@@ -725,6 +755,15 @@ button:focus-visible,
 
   .map-actions,
   .map-actions .icon-button {
+    width: 100%;
+  }
+
+  .settings-section {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-actions,
+  .settings-actions .icon-button {
     width: 100%;
   }
 
