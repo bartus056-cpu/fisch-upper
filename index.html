@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Aplikacja wedkarska dla Polski z prognoza pogody, danymi IMGW, mapa lowisk i albumem zdjec."
+    />
+    <title>Fisch Upper</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      crossorigin=""
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">PL</span>
+        <div>
+          <h1>Fisch Upper</h1>
+          <p>Polska prognoza, dane IMGW, mapa lowisk i album wypraw</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="icon-button" id="exportDataButton" type="button" title="Eksportuj dane">
+          <i data-lucide="download"></i>
+          <span>Eksport</span>
+        </button>
+        <button class="icon-button ghost" id="importDataButton" type="button" title="Importuj dane">
+          <i data-lucide="upload"></i>
+          <span>Import</span>
+        </button>
+        <input id="importDataInput" type="file" accept="application/json" hidden />
+      </div>
+    </header>
+
+    <main class="app-shell">
+      <section class="control-strip" aria-label="Wybierz lokalizacje">
+        <label class="field compact">
+          <span>Gotowe miejsce</span>
+          <select id="presetSelect">
+            <option value="">Wybierz z listy</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Szerokosc</span>
+          <input id="latInput" type="number" step="0.0001" inputmode="decimal" />
+        </label>
+        <label class="field">
+          <span>Dlugosc</span>
+          <input id="lonInput" type="number" step="0.0001" inputmode="decimal" />
+        </label>
+        <label class="field">
+          <span>Stacja IMGW</span>
+          <input id="stationInput" type="text" list="stationList" placeholder="np. Opole" />
+          <datalist id="stationList"></datalist>
+        </label>
+        <button class="icon-button" id="locateButton" type="button" title="Uzyj mojej lokalizacji">
+          <i data-lucide="crosshair"></i>
+          <span>GPS</span>
+        </button>
+        <button class="primary-button" id="loadWeatherButton" type="button">
+          <i data-lucide="cloud-sun"></i>
+          <span>Pobierz pogode</span>
+        </button>
+      </section>
+
+      <section class="workspace">
+        <div class="weather-column">
+          <section class="panel weather-now" aria-labelledby="weatherHeading">
+            <div class="panel-title-row">
+              <div>
+                <p class="eyebrow">Indeks bran</p>
+                <h2 id="weatherHeading">Aktualne warunki</h2>
+              </div>
+              <div class="score-ring" id="scoreRing" aria-label="Indeks bran">
+                <strong id="scoreValue">--</strong>
+                <span>/100</span>
+              </div>
+            </div>
+            <p class="status-line" id="statusLine">Wczytywanie danych dla polskiego lowiska...</p>
+            <div class="advice-box" id="adviceBox">
+              Wybierz miejsce na mapie albo wpisz wspolrzedne w Polsce.
+            </div>
+            <div class="metric-grid" id="metricGrid"></div>
+          </section>
+
+          <section class="panel" aria-labelledby="hourlyHeading">
+            <div class="panel-title-row">
+              <div>
+                <p class="eyebrow">Najblizsze godziny</p>
+                <h2 id="hourlyHeading">Okno na ryby</h2>
+              </div>
+              <button class="icon-only" id="refreshButton" type="button" title="Odswiez pogode">
+                <i data-lucide="refresh-cw"></i>
+                <span class="visually-hidden">Odswiez</span>
+              </button>
+            </div>
+            <div class="hourly-list" id="hourlyList"></div>
+          </section>
+
+          <section class="panel" aria-labelledby="marineHeading">
+            <div class="panel-title-row">
+              <div>
+                <p class="eyebrow">IMGW</p>
+                <h2 id="marineHeading">Stacja i woda</h2>
+              </div>
+            </div>
+            <div class="marine-list" id="marineList"></div>
+          </section>
+        </div>
+
+        <div class="map-column">
+          <section class="map-section" aria-labelledby="mapHeading">
+            <div class="map-toolbar">
+              <div>
+                <p class="eyebrow">Mapa wedkarska</p>
+                <h2 id="mapHeading">Lowiska i punkty</h2>
+              </div>
+              <div class="map-actions">
+                <button class="icon-button ghost" id="focusMapButton" type="button" title="Pokaz wybrane miejsce">
+                  <i data-lucide="map-pin"></i>
+                  <span>Centruj</span>
+                </button>
+              </div>
+            </div>
+            <div id="map" class="map" aria-label="Mapa lowisk"></div>
+            <div class="map-fallback" id="mapFallback" hidden>
+              Mapa wymaga polaczenia z bibliotekami Leaflet i kafelkami OpenStreetMap.
+            </div>
+          </section>
+
+          <section class="spot-editor" aria-labelledby="spotHeading">
+            <div>
+              <p class="eyebrow">Zapis punktu</p>
+              <h2 id="spotHeading">Nowe lowisko</h2>
+            </div>
+            <form id="spotForm" class="spot-form">
+              <label class="field">
+                <span>Nazwa</span>
+                <input id="spotNameInput" type="text" placeholder="np. zatoka przy pomoscie" required />
+              </label>
+              <label class="field">
+                <span>Typ</span>
+                <select id="spotTypeInput">
+                  <option>Jezioro</option>
+                  <option>Rzeka</option>
+                  <option>Zalew</option>
+                  <option>Morze</option>
+                  <option>Port</option>
+                  <option>Inne</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Ryby</span>
+                <input id="spotSpeciesInput" type="text" placeholder="sandacz, szczupak, okon" />
+              </label>
+              <label class="field wide">
+                <span>Notatka</span>
+                <textarea id="spotNotesInput" rows="2" placeholder="Glebokosc, przynety, dojazd"></textarea>
+              </label>
+              <button class="primary-button" type="submit">
+                <i data-lucide="plus"></i>
+                <span>Dodaj lowisko</span>
+              </button>
+            </form>
+            <div class="spot-list" id="spotList"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="album-section" aria-labelledby="albumHeading">
+        <div class="album-head">
+          <div>
+            <p class="eyebrow">Album wypraw</p>
+            <h2 id="albumHeading">Zdjecia i polowy</h2>
+          </div>
+          <button class="icon-button ghost" id="clearAlbumButton" type="button" title="Wyczysc album">
+            <i data-lucide="trash-2"></i>
+            <span>Wyczysc</span>
+          </button>
+        </div>
+        <form id="photoForm" class="photo-form">
+          <label class="file-drop" for="photoInput">
+            <i data-lucide="image-plus"></i>
+            <span>Dodaj zdjecia</span>
+            <small>JPG, PNG, WebP</small>
+          </label>
+          <input id="photoInput" type="file" accept="image/*" multiple hidden />
+          <label class="field">
+            <span>Lowisko</span>
+            <select id="photoSpotSelect">
+              <option value="">Bez przypisania</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Gatunek</span>
+            <input id="photoSpeciesInput" type="text" placeholder="np. sandacz" />
+          </label>
+          <label class="field">
+            <span>Data</span>
+            <input id="photoDateInput" type="date" />
+          </label>
+          <label class="field wide">
+            <span>Opis</span>
+            <input id="photoNoteInput" type="text" placeholder="Przyneta, pogoda, wymiar" />
+          </label>
+          <button class="primary-button" type="submit">
+            <i data-lucide="save"></i>
+            <span>Zapisz zdjecia</span>
+          </button>
+        </form>
+        <div class="album-grid" id="albumGrid"></div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <span>Dane pogodowe: prognoza Open-Meteo, obserwacje i wodowskazy IMGW-PIB.</span>
+      <span>Mapa: OpenStreetMap. Dane albumu i lowisk zostaja w tej przegladarce.</span>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
