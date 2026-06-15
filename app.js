@@ -1,64 +1,64 @@
 const STORAGE_KEY = "fishing-weather-poland-v2";
 
 const imgwStations = [
-  { name: "Bialystok", lat: 53.1325, lon: 23.1688 },
-  { name: "Bielsko Biala", lat: 49.8224, lon: 19.0449 },
+  { name: "Białystok", lat: 53.1325, lon: 23.1688 },
+  { name: "Bielsko-Biała", lat: 49.8224, lon: 19.0449 },
   { name: "Chojnice", lat: 53.6955, lon: 17.557 },
-  { name: "Czestochowa", lat: 50.8118, lon: 19.1203 },
-  { name: "Elblag", lat: 54.1522, lon: 19.4088 },
-  { name: "Gdansk", lat: 54.352, lon: 18.6466 },
-  { name: "Gorzow", lat: 52.7368, lon: 15.2288 },
+  { name: "Częstochowa", lat: 50.8118, lon: 19.1203 },
+  { name: "Elbląg", lat: 54.1522, lon: 19.4088 },
+  { name: "Gdańsk", lat: 54.352, lon: 18.6466 },
+  { name: "Gorzów", lat: 52.7368, lon: 15.2288 },
   { name: "Hel", lat: 54.6081, lon: 18.8013 },
-  { name: "Jelenia Gora", lat: 50.9044, lon: 15.7194 },
+  { name: "Jelenia Góra", lat: 50.9044, lon: 15.7194 },
   { name: "Kalisz", lat: 51.7611, lon: 18.091 },
   { name: "Katowice", lat: 50.2649, lon: 19.0238 },
-  { name: "Ketrzyn", lat: 54.0768, lon: 21.3753 },
+  { name: "Kętrzyn", lat: 54.0768, lon: 21.3753 },
   { name: "Kielce", lat: 50.8661, lon: 20.6286 },
-  { name: "Klodzko", lat: 50.4349, lon: 16.6615 },
-  { name: "Kolobrzeg", lat: 54.1769, lon: 15.5764 },
+  { name: "Kłodzko", lat: 50.4349, lon: 16.6615 },
+  { name: "Kołobrzeg", lat: 54.1769, lon: 15.5764 },
   { name: "Koszalin", lat: 54.1944, lon: 16.1722 },
   { name: "Kozienice", lat: 51.5829, lon: 21.5668 },
-  { name: "Krakow", lat: 50.0647, lon: 19.945 },
+  { name: "Kraków", lat: 50.0647, lon: 19.945 },
   { name: "Krosno", lat: 49.6887, lon: 21.7706 },
   { name: "Legnica", lat: 51.207, lon: 16.1553 },
   { name: "Lesko", lat: 49.47, lon: 22.33 },
   { name: "Leszno", lat: 51.8403, lon: 16.5749 },
-  { name: "Lebork", lat: 54.5392, lon: 17.7501 },
+  { name: "Lębork", lat: 54.5392, lon: 17.7501 },
   { name: "Lublin", lat: 51.2465, lon: 22.5684 },
-  { name: "Leba", lat: 54.7601, lon: 17.5569 },
-  { name: "Lodz", lat: 51.7592, lon: 19.455 },
-  { name: "Mikolajki", lat: 53.8029, lon: 21.5701 },
-  { name: "Mlawa", lat: 53.1128, lon: 20.3841 },
-  { name: "Nowy Sacz", lat: 49.6218, lon: 20.6971 },
+  { name: "Łeba", lat: 54.7601, lon: 17.5569 },
+  { name: "Łódź", lat: 51.7592, lon: 19.455 },
+  { name: "Mikołajki", lat: 53.8029, lon: 21.5701 },
+  { name: "Mława", lat: 53.1128, lon: 20.3841 },
+  { name: "Nowy Sącz", lat: 49.6218, lon: 20.6971 },
   { name: "Olsztyn", lat: 53.7784, lon: 20.4801 },
   { name: "Opole", lat: 50.6751, lon: 17.9213 },
-  { name: "Ostroleka", lat: 53.0833, lon: 21.5667 },
-  { name: "Pila", lat: 53.1515, lon: 16.7382 },
-  { name: "Plock", lat: 52.5468, lon: 19.7064 },
-  { name: "Poznan", lat: 52.4064, lon: 16.9252 },
-  { name: "Przemysl", lat: 49.7839, lon: 22.7678 },
-  { name: "Raciborz", lat: 50.0915, lon: 18.2193 },
+  { name: "Ostrołęka", lat: 53.0833, lon: 21.5667 },
+  { name: "Piła", lat: 53.1515, lon: 16.7382 },
+  { name: "Płock", lat: 52.5468, lon: 19.7064 },
+  { name: "Poznań", lat: 52.4064, lon: 16.9252 },
+  { name: "Przemyśl", lat: 49.7839, lon: 22.7678 },
+  { name: "Racibórz", lat: 50.0915, lon: 18.2193 },
   { name: "Resko", lat: 53.7721, lon: 15.4066 },
-  { name: "Rzeszow", lat: 50.0412, lon: 21.9991 },
+  { name: "Rzeszów", lat: 50.0412, lon: 21.9991 },
   { name: "Sandomierz", lat: 50.6827, lon: 21.749 },
   { name: "Siedlce", lat: 52.1677, lon: 22.2901 },
-  { name: "Slubice", lat: 52.3509, lon: 14.5606 },
-  { name: "Sulejow", lat: 51.3544, lon: 19.8855 },
-  { name: "Suwalki", lat: 54.1115, lon: 22.9308 },
+  { name: "Słubice", lat: 52.3509, lon: 14.5606 },
+  { name: "Sulejów", lat: 51.3544, lon: 19.8855 },
+  { name: "Suwałki", lat: 54.1115, lon: 22.9308 },
   { name: "Szczecin", lat: 53.4285, lon: 14.5528 },
   { name: "Szczecinek", lat: 53.7079, lon: 16.6994 },
-  { name: "Swinoujscie", lat: 53.9105, lon: 14.2471 },
-  { name: "Tarnow", lat: 50.0121, lon: 20.9858 },
+  { name: "Świnoujście", lat: 53.9105, lon: 14.2471 },
+  { name: "Tarnów", lat: 50.0121, lon: 20.9858 },
   { name: "Terespol", lat: 52.0756, lon: 23.6161 },
-  { name: "Torun", lat: 53.0138, lon: 18.5984 },
+  { name: "Toruń", lat: 53.0138, lon: 18.5984 },
   { name: "Ustka", lat: 54.5805, lon: 16.8619 },
   { name: "Warszawa", lat: 52.2297, lon: 21.0122 },
-  { name: "Wielun", lat: 51.2209, lon: 18.5696 },
-  { name: "Wlodawa", lat: 51.55, lon: 23.55 },
-  { name: "Wroclaw", lat: 51.1079, lon: 17.0385 },
+  { name: "Wieluń", lat: 51.2209, lon: 18.5696 },
+  { name: "Włodawa", lat: 51.55, lon: 23.55 },
+  { name: "Wrocław", lat: 51.1079, lon: 17.0385 },
   { name: "Zakopane", lat: 49.2992, lon: 19.9496 },
-  { name: "Zamosc", lat: 50.7231, lon: 23.251 },
-  { name: "Zielona Gora", lat: 51.9356, lon: 15.5062 },
+  { name: "Zamość", lat: 50.7231, lon: 23.251 },
+  { name: "Zielona Góra", lat: 51.9356, lon: 15.5062 },
 ];
 
 const presets = [
@@ -68,7 +68,7 @@ const presets = [
     lon: 17.9886,
     station: "Opole",
     type: "Jezioro",
-    species: "karp, amur, lin, szczupak, okon",
+    species: "karp, amur, lin, szczupak, okoń",
   },
   {
     name: "Jezioro Turawskie",
@@ -76,50 +76,50 @@ const presets = [
     lon: 18.1195,
     station: "Opole",
     type: "Jezioro",
-    species: "sandacz, szczupak, okon, leszcz",
+    species: "sandacz, szczupak, okoń, leszcz",
   },
   {
-    name: "Mazury - Mikolajki",
+    name: "Mazury - Mikołajki",
     lat: 53.8029,
     lon: 21.5701,
-    station: "Mikolajki",
+    station: "Mikołajki",
     type: "Jezioro",
-    species: "szczupak, okon, sandacz, wegorz",
+    species: "szczupak, okoń, sandacz, węgorz",
   },
   {
-    name: "Zalew Zegrzynski",
+    name: "Zalew Zegrzyński",
     lat: 52.4722,
     lon: 21.0483,
     station: "Warszawa",
     type: "Zalew",
-    species: "sandacz, sum, leszcz, okon",
+    species: "sandacz, sum, leszcz, okoń",
   },
   {
-    name: "Wisla - Warszawa",
+    name: "Wisła - Warszawa",
     lat: 52.2477,
     lon: 21.0122,
     station: "Warszawa",
     type: "Rzeka",
-    species: "bolen, sandacz, sum, brzana",
+    species: "boleń, sandacz, sum, brzana",
   },
   {
-    name: "Odra - Wroclaw",
+    name: "Odra - Wrocław",
     lat: 51.1079,
     lon: 17.0385,
-    station: "Wroclaw",
+    station: "Wrocław",
     type: "Rzeka",
-    species: "klen, sandacz, sum, leszcz",
+    species: "kleń, sandacz, sum, leszcz",
   },
   {
-    name: "Jezioro Solinskie",
+    name: "Jezioro Solińskie",
     lat: 49.3953,
     lon: 22.4515,
     station: "Lesko",
     type: "Jezioro",
-    species: "sandacz, szczupak, okon, pstrag",
+    species: "sandacz, szczupak, okoń, pstrąg",
   },
   {
-    name: "Zatoka Gdanska - Hel",
+    name: "Zatoka Gdańska - Hel",
     lat: 54.6081,
     lon: 18.8013,
     station: "Hel",
@@ -127,41 +127,41 @@ const presets = [
     species: "belona, dorsz, fladra, okoń morski",
   },
   {
-    name: "Jezioro Dabie - Szczecin",
+    name: "Jezioro Dąbie - Szczecin",
     lat: 53.4246,
     lon: 14.6337,
     station: "Szczecin",
     type: "Jezioro",
-    species: "sandacz, szczupak, okon",
+    species: "sandacz, szczupak, okoń",
   },
 ];
 
 const weatherCodeText = {
   0: "Bezchmurnie",
-  1: "Przewaznie slonecznie",
-  2: "Czesciowe zachmurzenie",
+  1: "Przeważnie słonecznie",
+  2: "Częściowe zachmurzenie",
   3: "Pochmurno",
-  45: "Mgla",
-  48: "Mgla osadzajaca szadz",
-  51: "Slaba mzawka",
+  45: "Mgła",
+  48: "Mgła osadzająca szadź",
+  51: "Słaba mżawka",
   53: "Mzawka",
-  55: "Silna mzawka",
-  56: "Marznaca mzawka",
-  57: "Silna marznaca mzawka",
-  61: "Slaby deszcz",
+  55: "Silna mżawka",
+  56: "Marznąca mżawka",
+  57: "Silna marznąca mżawka",
+  61: "Słaby deszcz",
   63: "Deszcz",
   65: "Silny deszcz",
-  66: "Marznacy deszcz",
-  67: "Silny marznacy deszcz",
-  71: "Slaby snieg",
-  73: "Snieg",
-  75: "Silny snieg",
-  77: "Ziarnisty snieg",
+  66: "Marznący deszcz",
+  67: "Silny marznący deszcz",
+  71: "Słaby śnieg",
+  73: "Śnieg",
+  75: "Silny śnieg",
+  77: "Ziarnisty śnieg",
   80: "Przelotny deszcz",
   81: "Przelotny deszcz",
   82: "Silna ulewa",
-  85: "Przelotny snieg",
-  86: "Silny przelotny snieg",
+  85: "Przelotny śnieg",
+  86: "Silny przelotny śnieg",
   95: "Burza",
   96: "Burza z gradem",
   99: "Silna burza z gradem",
@@ -255,8 +255,8 @@ function showBootError(error) {
   if (!bootWarning) return;
   bootWarning.hidden = false;
   bootWarning.classList.add("is-error");
-  const message = error?.message ? ` Blad: ${error.message}` : "";
-  bootWarning.innerHTML = `<strong>Aplikacja nie wystartowala.</strong><span>Najczesciej oznacza to, ze na GitHubie jest stary albo niepodmieniony plik app.js.${escapeHtml(message)}</span>`;
+  const message = error?.message ? ` Błąd: ${error.message}` : "";
+  bootWarning.innerHTML = `<strong>Aplikacja nie wystartowała.</strong><span>Najczęściej oznacza to, że na GitHubie jest stary albo niepodmieniony plik app.js.${escapeHtml(message)}</span>`;
 }
 
 function loadStorage() {
@@ -270,7 +270,7 @@ function loadStorage() {
       state.selected = saved.selected;
     }
   } catch (error) {
-    console.warn("Nie udalo sie wczytac zapisu", error);
+    console.warn("Nie udało się wczytać zapisu", error);
   }
 }
 
@@ -422,12 +422,12 @@ function handlePhotoSelection() {
     dom.photoDropTitle.textContent = files.length === 1 ? files[0].name : `${photoCountLabel(files.length)} wybrane`;
   }
   if (dom.photoDropMeta) dom.photoDropMeta.textContent = `${formatFileSize(totalBytes)} gotowe do zapisu`;
-  setPhotoStatus(`Wybrano ${photoCountLabel(files.length)}. Kliknij „Zapisz zdjecia”.`, "working");
+  setPhotoStatus(`Wybrano ${photoCountLabel(files.length)}. Kliknij „Zapisz zdjęcia”.`, "working");
 }
 
 function resetPhotoPicker() {
   dom.fileDrop?.classList.remove("has-files");
-  if (dom.photoDropTitle) dom.photoDropTitle.textContent = "Dodaj zdjecia";
+  if (dom.photoDropTitle) dom.photoDropTitle.textContent = "Dodaj zdjęcia";
   if (dom.photoDropMeta) dom.photoDropMeta.textContent = "JPG, PNG, WebP";
 }
 
@@ -457,7 +457,7 @@ function selectLocation(location) {
   const lat = Number(location.lat);
   const lon = Number(location.lon);
   if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
-    setStatus("Wpisz poprawne wspolrzedne.", "warn");
+    setStatus("Wpisz poprawne współrzędne.", "warn");
     return;
   }
 
@@ -476,10 +476,10 @@ function selectLocation(location) {
 
 async function locateUser() {
   if (!navigator.geolocation) {
-    setStatus("Ta przegladarka nie udostepnia lokalizacji.", "warn");
+    setStatus("Ta przeglądarka nie udostępnia lokalizacji.", "warn");
     return;
   }
-  setStatus("Czekam na lokalizacje z przegladarki...");
+  setStatus("Czekam na lokalizację z przeglądarki...");
   navigator.geolocation.getCurrentPosition(
     (position) => {
       selectLocation({
@@ -490,7 +490,7 @@ async function locateUser() {
       if (state.map) state.map.setView([state.selected.lat, state.selected.lon], 11);
       loadWeather();
     },
-    () => setStatus("Nie udalo sie pobrac lokalizacji.", "warn"),
+    () => setStatus("Nie udało się pobrać lokalizacji.", "warn"),
     { enableHighAccuracy: true, timeout: 10000 }
   );
 }
@@ -498,13 +498,13 @@ async function locateUser() {
 async function loadWeather() {
   const location = readInputs();
   if (!Number.isFinite(location.lat) || !Number.isFinite(location.lon)) {
-    setStatus("Wpisz poprawne wspolrzedne.", "warn");
+    setStatus("Wpisz poprawne współrzędne.", "warn");
     return;
   }
 
   selectLocation(location);
   setLoading(true);
-  setStatus("Pobieram prognoze i dane IMGW...");
+  setStatus("Pobieram prognozę i dane IMGW...");
 
   try {
     const [forecastResult, synopResult, hydroResult] = await Promise.allSettled([
@@ -714,8 +714,8 @@ function renderWeather() {
     ["Temperatura", formatMaybe(now.temperature, "°C")],
     ["Wiatr", `${formatMaybe(now.windSpeed, "km/h")} ${directionText(now.windDirection)}`],
     ["Opad", `${formatMaybe(now.precipitation, "mm")} / ${formatMaybe(now.precipitationProbability, "%")}`],
-    ["Wilgotnosc", formatMaybe(now.relativeHumidity, "%")],
-    ["Cisnienie", formatMaybe(now.pressure, "hPa")],
+    ["Wilgotność", formatMaybe(now.relativeHumidity, "%")],
+    ["Ciśnienie", formatMaybe(now.pressure, "hPa")],
     ["Temp. wody", formatMaybe(waterTemp, "°C")],
   ]);
   renderFishingDetails(now, state.weather.daily, state.weather.hourly, waterTemp);
@@ -726,11 +726,11 @@ function renderWeather() {
 function renderWeatherError(error) {
   setScore(null);
   dom.adviceBox.textContent =
-    "Nie udalo sie pobrac prognozy. Sprawdz internet albo sprobuj ponownie za chwile.";
+    "Nie udało się pobrać prognozy. Sprawdź internet albo spróbuj ponownie za chwilę.";
   dom.metricGrid.innerHTML = "";
   dom.detailGrid.innerHTML = "";
   if (dom.assistantSummary) {
-    dom.assistantSummary.textContent = "Asystent potrzebuje aktualnej pogody. Pobierz dane jeszcze raz.";
+    dom.assistantSummary.textContent = "Fischer potrzebuje aktualnej pogody. Pobierz dane jeszcze raz.";
   }
   if (dom.assistantAnswer) dom.assistantAnswer.textContent = "";
   dom.hourlyList.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
@@ -817,7 +817,7 @@ function handleAssistantSubmit(event) {
 function answerAssistant(question) {
   if (!dom.assistantAnswer) return;
   if (!state.weather?.current || !state.weather?.hourly?.length) {
-    dom.assistantAnswer.textContent = "Najpierw pobierz pogode dla lowiska. Wtedy odpowiem na bazie aktualnych danych.";
+    dom.assistantAnswer.textContent = "Najpierw pobierz pogodę dla łowiska. Wtedy odpowiem na bazie aktualnych danych.";
     return;
   }
   const now = state.weather.current;
@@ -851,25 +851,25 @@ function buildFishingAdvice(question, score, now, daily, hourly, waterTemp) {
   const moon = moonPhaseInfo(new Date(now.startTime || Date.now()));
   const windowsText = windows.length
     ? windows.map((item) => `${item.time} (${item.score}/100)`).join(", ")
-    : "brak mocnego okna w najblizszych godzinach";
+    : "brak mocnego okna w najbliższych godzinach";
 
   if (/kiedy|godzin|pora|czas|okno/.test(text)) {
-    return `Najlepsze najblizsze okna: ${windowsText}. Przy obecnych danych najpierw sprawdzalbym swit/zmierzch oraz godziny z lekkim wiatrem i stabilnym cisnieniem.`;
+    return `Najlepsze najbliższe okna: ${windowsText}. Przy obecnych danych najpierw sprawdzałbym świt/zmierzch oraz godziny z lekkim wiatrem i stabilnym ciśnieniem.`;
   }
-  if (/gdzie|miejsce|brzeg|szukac|łowisko|lowisko/.test(text)) {
-    return `Szukaj przede wszystkim: ${places}. Przy wietrze ${wind || "brak danych"} zacznij od brzegu, na ktory spycha pokarm, zatok, trzcin i przejsc glebszej wody w plytsza.`;
+  if (/gdzie|miejsce|brzeg|szukac|lowisko/.test(text)) {
+    return `Szukaj przede wszystkim: ${places}. Przy wietrze ${wind || "brak danych"} zacznij od brzegu, na który spycha pokarm, zatok, trzcin i przejść głębszej wody w płytszą.`;
   }
-  if (/na co|przynet|lowic|łowić|ryb|gatunek|zestaw/.test(text)) {
-    return `Celowalbym w: ${fish}. Przynety/zestaw: ${lures}. Prowadz wolniej, jesli wiatr albo cisnienie sa trudne; szybciej oblawiaj aktywne ryby, jesli indeks jest wysoki.`;
+  if (/na co|przynet|lowic|ryb|gatunek|zestaw/.test(text)) {
+    return `Celowałbym w: ${fish}. Przynęty/zestaw: ${lures}. Prowadź wolniej, jeśli wiatr albo ciśnienie są trudne; szybciej obławiaj aktywne ryby, jeśli indeks jest wysoki.`;
   }
   if (/wiatr|kierunek|poryw/.test(text)) {
-    return `Wiatr teraz: ${wind || "brak danych"}, porywy ${formatMaybe(now.windGust, "km/h")}. W praktyce oblawiaj nawietrzny brzeg, cofki, doplywy i miejsca, gdzie fala miesza wode.`;
+    return `Wiatr teraz: ${wind || "brak danych"}, porywy ${formatMaybe(now.windGust, "km/h")}. W praktyce obławiaj nawietrzny brzeg, cofki, dopływy i miejsca, gdzie fala miesza wodę.`;
   }
-  if (/ksiezyc|księżyc|slonce|słońce|uv|zmierzch|swit/.test(text)) {
-    return `Slonce: ${formatClock(daily?.sunrise)}-${formatClock(daily?.sunset)}, dzien ${formatDuration(daily?.daylightDuration)}. Ksiezyc: ${moon.name}, ok. ${moon.illumination}% oswietlenia. Najciekawsze beda okolice switu i zmierzchu.`;
+  if (/ksiezyc|slonce|uv|zmierzch|swit/.test(text)) {
+    return `Słońce: ${formatClock(daily?.sunrise)}-${formatClock(daily?.sunset)}, dzień ${formatDuration(daily?.daylightDuration)}. Księżyc: ${moon.name}, ok. ${moon.illumination}% oświetlenia. Najciekawsze będą okolice świtu i zmierzchu.`;
   }
 
-  return `Podsumowanie asystenta: warunki ${score.value}/100. Najlepsze okna: ${windowsText}. Gdzie: ${places}. Na co: ${fish}. Przynety: ${lures}. Wiatr ${wind || "brak danych"}, cisnienie ${formatMaybe(now.pressure, "hPa")}.`;
+  return `Podsumowanie Fischera: warunki ${score.value}/100. Najlepsze okna: ${windowsText}. Gdzie: ${places}. Na co: ${fish}. Przynęty: ${lures}. Wiatr ${wind || "brak danych"}, ciśnienie ${formatMaybe(now.pressure, "hPa")}.`;
 }
 
 function bestFishingWindows(periods, waterTemp, count) {
@@ -902,31 +902,31 @@ function placeAdvice(now) {
   const wind = numberOrNull(now.windSpeed);
   const rain = numberOrNull(now.precipitationProbability);
   if (Number.isFinite(wind) && wind > 22) {
-    return "zatoki osloniete od mocnej fali, cofki, przesmyki i miejsca za trzcinami";
+    return "zatoki osłonięte od mocnej fali, cofki, przesmyki i miejsca za trzcinami";
   }
   if (Number.isFinite(rain) && rain > 55) {
-    return "doplywy, splywy deszczowki, ciemniejsze pasy wody i granice metnej wody";
+    return "dopływy, spływy deszczówki, ciemniejsze pasy wody i granice mętnej wody";
   }
-  return "spady, blaty przy roslinnosci, trzcinowiska, pomosty, doplywy i przejscia plytko-gleboko";
+  return "spady, blaty przy roślinności, trzcinowiska, pomosty, dopływy i przejścia płytko-głęboko";
 }
 
 function fishAdvice(now, waterTemp) {
   const temp = firstNumber(waterTemp, now.temperature);
   const wind = numberOrNull(now.windSpeed);
-  if (Number.isFinite(temp) && temp < 8) return "okon, sandacz i szczupak w wolniejszym prowadzeniu";
-  if (Number.isFinite(temp) && temp > 20) return "karp, amur, lin rano/wieczorem oraz drapieznik przy cieniu i tlenie";
-  if (Number.isFinite(wind) && wind >= 8 && wind <= 22) return "szczupak, okon, sandacz oraz biala ryba przy lekkiej fali";
-  return "okon, szczupak, sandacz, leszcz albo karp - zależnie od lowiska";
+  if (Number.isFinite(temp) && temp < 8) return "okoń, sandacz i szczupak w wolniejszym prowadzeniu";
+  if (Number.isFinite(temp) && temp > 20) return "karp, amur, lin rano/wieczorem oraz drapieżnik przy cieniu i tlenie";
+  if (Number.isFinite(wind) && wind >= 8 && wind <= 22) return "szczupak, okoń, sandacz oraz biała ryba przy lekkiej fali";
+  return "okoń, szczupak, sandacz, leszcz albo karp - zależnie od łowiska";
 }
 
 function lureAdvice(now, waterTemp) {
   const wind = numberOrNull(now.windSpeed);
   const rain = numberOrNull(now.precipitationProbability);
   const temp = firstNumber(waterTemp, now.temperature);
-  if (Number.isFinite(temp) && temp > 20) return "kukurydza, pellet, method feeder, robak; na drapieznika guma przy dnie albo wobler o zmierzchu";
-  if (Number.isFinite(wind) && wind > 24) return "ciezsza guma, obrotowka/wahadlowka, feeder z ciezszym koszykiem albo zestaw przy dnie";
-  if (Number.isFinite(rain) && rain > 55) return "zapachowe przynety, feeder, robaki, gumy w naturalnych kolorach przy doplywach";
-  return "gumy 5-9 cm, obrotowki, wobler przy roslinnosci, feeder lub method przy spokojniejszych miejscach";
+  if (Number.isFinite(temp) && temp > 20) return "kukurydza, pellet, method feeder, robak; na drapieżnika guma przy dnie albo wobler o zmierzchu";
+  if (Number.isFinite(wind) && wind > 24) return "cięższa guma, obrotówka/wahadłówka, feeder z cięższym koszykiem albo zestaw przy dnie";
+  if (Number.isFinite(rain) && rain > 55) return "zapachowe przynęty, feeder, robaki, gumy w naturalnych kolorach przy dopływach";
+  return "gumy 5-9 cm, obrotówki, wobler przy roślinności, feeder lub method przy spokojniejszych miejscach";
 }
 
 function renderHourly(periods, waterTemp) {
@@ -962,7 +962,7 @@ function renderHourly(periods, waterTemp) {
 function renderWater(data) {
   if (!data) {
     dom.marineList.innerHTML =
-      '<div class="empty-state">Tu pojawia sie najblizsza stacja IMGW i najblizszy wodowskaz dla wybranego lowiska.</div>';
+      '<div class="empty-state">Tu pojawia się najbliższa stacja IMGW i najbliższy wodowskaz dla wybranego łowiska.</div>';
     return;
   }
 
@@ -979,7 +979,7 @@ function renderWater(data) {
     ["Wiatr stacji", synop ? `${formatMaybe(synopWindKph(synop), "km/h")} ${directionText(synopNumber(synop, "kierunek_wiatru"))}` : "brak danych"],
     ["Opad stacji", synop ? formatMaybe(synopNumber(synop, "suma_opadu"), "mm") : "brak danych"],
     ["Wodowskaz", hydroName],
-    ["Stan wody", hydro ? `${formatMaybe(numberOrNull(hydro.stan_wody), "cm")} · przeplyw ${formatMaybe(numberOrNull(hydro.przeplyw), "m³/s")}` : "brak danych"],
+    ["Stan wody", hydro ? `${formatMaybe(numberOrNull(hydro.stan_wody), "cm")} · przepływ ${formatMaybe(numberOrNull(hydro.przeplyw), "m³/s")}` : "brak danych"],
     ["Temp. wody", hydro ? formatMaybe(hydroWaterTemp(hydro), "°C") : "brak danych"],
   ]
     .map(
@@ -1010,7 +1010,7 @@ function scoreFishingHour({
     if (tempC >= 10 && tempC <= 24) score += 10;
     else if (tempC < 2 || tempC > 31) {
       score -= 16;
-      reasons.push("temperatura jest wymagajaca");
+      reasons.push("temperatura jest wymagająca");
     } else score -= 5;
   }
 
@@ -1018,10 +1018,10 @@ function scoreFishingHour({
     if (windKph >= 6 && windKph <= 22) score += 12;
     else if (windKph > 38) {
       score -= 24;
-      reasons.push("wiatr moze utrudnic lowienie");
+      reasons.push("wiatr może utrudnić łowienie");
     } else if (windKph < 3) {
       score -= 6;
-      reasons.push("cisza moze oslabic brania przy czystej wodzie");
+      reasons.push("cisza może osłabić brania przy czystej wodzie");
     } else score -= 8;
   }
 
@@ -1029,7 +1029,7 @@ function scoreFishingHour({
     if (precipProbability > 0 && precipProbability <= 35) score += 4;
     if (precipProbability > 65) {
       score -= 15;
-      reasons.push("duze ryzyko opadow");
+      reasons.push("duże ryzyko opadów");
     }
   }
 
@@ -1042,7 +1042,7 @@ function scoreFishingHour({
     if (pressure >= 1008 && pressure <= 1022) score += 7;
     else if (pressure < 995 || pressure > 1032) {
       score -= 10;
-      reasons.push("cisnienie jest poza komfortowym zakresem");
+      reasons.push("ciśnienie jest poza komfortowym zakresem");
     }
   }
 
@@ -1050,23 +1050,23 @@ function scoreFishingHour({
     if (waterTemp >= 8 && waterTemp <= 22) score += 6;
     else if (waterTemp < 4 || waterTemp > 27) {
       score -= 8;
-      reasons.push("temperatura wody moze spowalniac ryby");
+      reasons.push("temperatura wody może spowalniać ryby");
     }
   }
 
   if (/burza|thunder|storm|grad|hail/.test(text)) {
     score -= 35;
-    reasons.push("burze oznaczaja przerwe dla bezpieczenstwa");
+    reasons.push("burze oznaczają przerwę dla bezpieczeństwa");
   }
   if (/mgla|fog|mist/.test(text)) score -= 6;
   if (/snieg|lod|freezing|snow|ice/.test(text)) score -= 12;
 
   score = clamp(Math.round(score), 5, 98);
-  const label = score >= 82 ? "bardzo dobre" : score >= 66 ? "dobre" : score >= 48 ? "srednie" : "trudne";
+  const label = score >= 82 ? "bardzo dobre" : score >= 66 ? "dobre" : score >= 48 ? "średnie" : "trudne";
   const advice =
     reasons.length > 0
       ? `Warunki: ${label}. Uwaga: ${reasons.slice(0, 2).join(", ")}.`
-      : `Warunki: ${label}. Szukaj ryby przy spadach, trzcinach, doplywach i miejscach z lekkim ruchem wody.`;
+      : `Warunki: ${label}. Szukaj ryby przy spadach, trzcinach, dopływach i miejscach z lekkim ruchem wody.`;
   return { value: score, advice };
 }
 
@@ -1092,7 +1092,7 @@ function setStatus(message, tone = "normal") {
 function setLoading(isLoading) {
   dom.loadWeatherButton.disabled = isLoading;
   dom.refreshButton.disabled = isLoading;
-  dom.loadWeatherButton.querySelector("span").textContent = isLoading ? "Pobieram..." : "Pobierz pogode";
+  dom.loadWeatherButton.querySelector("span").textContent = isLoading ? "Pobieram..." : "Pobierz pogodę";
 }
 
 function updateCurrentMarker() {
@@ -1111,7 +1111,7 @@ function currentPopupMarkup() {
   return `
     <div class="popup-title">Wybrane miejsce</div>
     <div>${state.selected.lat}, ${state.selected.lon}</div>
-    <div>IMGW: ${escapeHtml(state.selected.station || "najblizsza stacja")}</div>
+    <div>IMGW: ${escapeHtml(state.selected.station || "najbliższa stacja")}</div>
     <div class="popup-actions">
       <button type="button" onclick="window.fishingApp.loadWeather()">Pogoda</button>
     </div>
@@ -1160,7 +1160,7 @@ function handleSpotSubmit(event) {
 function renderSpots() {
   syncPhotoSpotSelect();
   if (!state.spots.length) {
-    dom.spotList.innerHTML = '<div class="empty-state">Kliknij mape i zapisz pierwsze lowisko.</div>';
+    dom.spotList.innerHTML = '<div class="empty-state">Kliknij mapę i zapisz pierwsze łowisko.</div>';
     return;
   }
   dom.spotList.innerHTML = state.spots
@@ -1170,7 +1170,7 @@ function renderSpots() {
           <div>
             <strong>${escapeHtml(spot.name)}</strong>
             <div class="spot-meta">
-              ${escapeHtml(spot.type)} · ${escapeHtml(spot.species || "bez gatunkow")}<br />
+              ${escapeHtml(spot.type)} · ${escapeHtml(spot.species || "bez gatunków")}<br />
               ${spot.lat}, ${spot.lon}${spot.station ? ` · IMGW ${escapeHtml(spot.station)}` : ""}
             </div>
           </div>
@@ -1178,7 +1178,7 @@ function renderSpots() {
             <button class="tiny-button" type="button" title="Wybierz" data-spot-action="select" data-id="${spot.id}">
               <i data-lucide="navigation"></i>
             </button>
-            <button class="tiny-button" type="button" title="Usun" data-spot-action="delete" data-id="${spot.id}">
+            <button class="tiny-button" type="button" title="Usuń" data-spot-action="delete" data-id="${spot.id}">
               <i data-lucide="x"></i>
             </button>
           </div>
@@ -1219,12 +1219,12 @@ async function handlePhotoSubmit(event) {
   event.preventDefault();
   const files = Array.from(dom.photoInput.files || []);
   if (!files.length) {
-    setPhotoStatus("Najpierw wybierz zdjecie albo kilka zdjec.", "warn");
-    setStatus("Wybierz przynajmniej jedno zdjecie.", "warn");
+    setPhotoStatus("Najpierw wybierz zdjęcie albo kilka zdjęć.", "warn");
+    setStatus("Wybierz przynajmniej jedno zdjęcie.", "warn");
     return;
   }
 
-  setStatus("Kompresuje i zapisuje zdjecia lokalnie...");
+  setStatus("Kompresuję i zapisuję zdjęcia lokalnie...");
   setPhotoStatus(`Przygotowuje ${photoCountLabel(files.length)} do zapisu...`, "working");
   try {
     const newPhotos = [];
@@ -1250,11 +1250,11 @@ async function handlePhotoSubmit(event) {
     dom.photoDateInput.valueAsDate = new Date();
     renderAlbum();
     setPhotoStatus(`Zapisano ${photoCountLabel(newPhotos.length)} w albumie.`, "success");
-    setStatus(`Dodano zdjecia: ${newPhotos.length}.`);
+    setStatus(`Dodano zdjęcia: ${newPhotos.length}.`);
   } catch (error) {
     console.error(error);
-    setPhotoStatus("Nie udalo sie zapisac zdjec. Sprobuj mniejszy plik albo mniej zdjec naraz.", "warn");
-    setStatus("Nie udalo sie zapisac zdjec. Mozliwe, ze pamiec przegladarki jest pelna.", "warn");
+    setPhotoStatus("Nie udało się zapisać zdjęć. Spróbuj mniejszy plik albo mniej zdjęć naraz.", "warn");
+    setStatus("Nie udało się zapisać zdjęć. Możliwe, że pamięć przeglądarki jest pełna.", "warn");
   }
 }
 
@@ -1268,13 +1268,13 @@ function renderAlbum() {
       const spot = state.spots.find((item) => item.id === photo.spotId);
       return `
         <article class="photo-card">
-          <img src="${photo.src}" alt="${escapeHtml(photo.species || photo.name || "Zdjecie z wyprawy")}" loading="lazy" />
+          <img src="${photo.src}" alt="${escapeHtml(photo.species || photo.name || "Zdjęcie z wyprawy")}" loading="lazy" />
           <div class="photo-card-body">
-            <strong>${escapeHtml(photo.species || "Zdjecie z wyprawy")}</strong>
+            <strong>${escapeHtml(photo.species || "Zdjęcie z wyprawy")}</strong>
             <small>${escapeHtml(photo.date || "")}${spot ? ` · ${escapeHtml(spot.name)}` : ""}</small>
             <span>${escapeHtml(photo.note || photo.name || "")}</span>
             <div class="photo-card-actions">
-              <button class="tiny-button" type="button" title="Usun zdjecie" data-photo-id="${photo.id}">
+              <button class="tiny-button" type="button" title="Usuń zdjęcie" data-photo-id="${photo.id}">
                 <i data-lucide="trash-2"></i>
               </button>
             </div>
@@ -1297,7 +1297,7 @@ function deletePhoto(id) {
 
 function clearAlbum() {
   if (!state.photos.length) return;
-  const confirmed = confirm("Usunac wszystkie zdjecia z lokalnego albumu?");
+  const confirmed = confirm("Usunąć wszystkie zdjęcia z lokalnego albumu?");
   if (!confirmed) return;
   state.photos = [];
   saveStorage();
@@ -1377,11 +1377,11 @@ async function importData() {
     renderSpots();
     renderSpotMarkers();
     renderAlbum();
-    setStatus("Import zakonczony.");
+    setStatus("Import zakończony.");
     closeDrawer();
   } catch (error) {
     console.error(error);
-    setStatus("Nie udalo sie zaimportowac pliku JSON.", "warn");
+    setStatus("Nie udało się zaimportować pliku JSON.", "warn");
   } finally {
     dom.importDataInput.value = "";
   }
@@ -1560,9 +1560,9 @@ function moonPhaseInfo(date) {
 }
 
 function photoCountLabel(count) {
-  if (count === 1) return "1 zdjecie";
-  if (count > 1 && count < 5) return `${count} zdjecia`;
-  return `${count} zdjec`;
+  if (count === 1) return "1 zdjęcie";
+  if (count > 1 && count < 5) return `${count} zdjęcia`;
+  return `${count} zdjęć`;
 }
 
 function formatFileSize(bytes) {

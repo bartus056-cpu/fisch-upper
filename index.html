@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Aplikacja wedkarska dla Polski z prognoza pogody, danymi IMGW, mapa lowisk i albumem zdjec."
+      content="Aplikacja wędkarska dla Polski z prognozą pogody, danymi IMGW, mapą łowisk i albumem zdjęć."
     />
     <title>Fisch Upper</title>
     <meta name="theme-color" content="#087cbd" />
@@ -32,7 +32,7 @@
         class="menu-button"
         id="menuButton"
         type="button"
-        aria-label="Otworz menu"
+        aria-label="Otwórz menu"
         aria-expanded="false"
         aria-controls="appDrawer"
       >
@@ -57,15 +57,15 @@
         <button class="drawer-action" id="exportDataButton" type="button">
           <i data-lucide="download"></i>
           <span>
-            <strong>Eksportuj kopie</strong>
-            <small>Zapisz lowiska, notatki i album do pliku JSON.</small>
+            <strong>Eksportuj kopię</strong>
+            <small>Zapisz łowiska, notatki i album do pliku JSON.</small>
           </span>
         </button>
         <button class="drawer-action" id="importDataButton" type="button">
           <i data-lucide="upload"></i>
           <span>
-            <strong>Importuj kopie</strong>
-            <small>Przywroc dane z wczesniej zapisanego pliku.</small>
+            <strong>Importuj kopię</strong>
+            <small>Przywróć dane z wcześniej zapisanego pliku.</small>
           </span>
         </button>
         <input id="importDataInput" type="file" accept="application/json" hidden />
@@ -77,32 +77,32 @@
           <i data-lucide="chevron-down"></i>
         </summary>
         <div class="drawer-about-content">
-          <h3>Fisch Upper: pogoda, mapa lowisk i album wypraw</h3>
+          <h3>Fisch Upper: pogoda, mapa łowisk i album wypraw</h3>
           <p>
-            Fisch Upper pomaga szybko sprawdzic warunki nad woda, zapisac swoje
-            lowiska na mapie i prowadzic prosty album zdjec z wypraw.
+            Fisch Upper pomaga szybko sprawdzić warunki nad wodą, zapisać swoje
+            łowiska na mapie i prowadzić prosty album zdjęć z wypraw.
           </p>
           <div class="drawer-info-grid">
             <div>
-              <strong>Jak dziala</strong>
-              <span>Liczy indeks bran z temperatury, wiatru, opadow, cisnienia, danych o wodzie oraz swiatla.</span>
+              <strong>Jak działa</strong>
+              <span>Liczy indeks brań z temperatury, wiatru, opadów, ciśnienia, danych o wodzie oraz światła.</span>
             </div>
             <div>
               <strong>Dane</strong>
               <span>Prognoza: Open-Meteo. Obserwacje i wodowskazy: IMGW-PIB. Mapa: OpenStreetMap.</span>
             </div>
             <div>
-              <strong>Prywatnosc</strong>
-              <span>Lowiska, notatki i zdjecia zostaja lokalnie w tej przegladarce.</span>
+              <strong>Prywatność</strong>
+              <span>Łowiska, notatki i zdjęcia zostają lokalnie w tej przeglądarce.</span>
             </div>
           </div>
-          <p class="signature">Stworzone z mysla o wedkarzach przez <strong>Bartosza Rozka</strong>.</p>
+          <p class="signature">Stworzone z myślą o wędkarzach przez <strong>Bartosza Rożka</strong>.</p>
         </div>
       </details>
     </aside>
 
     <main class="app-shell">
-      <section class="control-strip" aria-label="Wybierz lokalizacje">
+      <section class="control-strip" aria-label="Wybierz lokalizację">
         <label class="field compact">
           <span>Gotowe miejsce</span>
           <select id="presetSelect">
@@ -110,11 +110,11 @@
           </select>
         </label>
         <label class="field">
-          <span>Szerokosc</span>
+          <span>Szerokość</span>
           <input id="latInput" type="number" step="0.0001" inputmode="decimal" />
         </label>
         <label class="field">
-          <span>Dlugosc</span>
+          <span>Długość</span>
           <input id="lonInput" type="number" step="0.0001" inputmode="decimal" />
         </label>
         <label class="field">
@@ -122,13 +122,13 @@
           <input id="stationInput" type="text" list="stationList" placeholder="np. Opole" />
           <datalist id="stationList"></datalist>
         </label>
-        <button class="icon-button" id="locateButton" type="button" title="Uzyj mojej lokalizacji">
+        <button class="icon-button" id="locateButton" type="button" title="Użyj mojej lokalizacji">
           <i data-lucide="crosshair"></i>
           <span>GPS</span>
         </button>
         <button class="primary-button" id="loadWeatherButton" type="button">
           <i data-lucide="cloud-sun"></i>
-          <span>Pobierz pogode</span>
+          <span>Pobierz pogodę</span>
         </button>
       </section>
 
@@ -137,17 +137,17 @@
           <section class="panel weather-now" aria-labelledby="weatherHeading">
             <div class="panel-title-row">
               <div>
-                <p class="eyebrow">Indeks bran</p>
+                <p class="eyebrow">Indeks brań</p>
                 <h2 id="weatherHeading">Aktualne warunki</h2>
               </div>
-              <div class="score-ring" id="scoreRing" aria-label="Indeks bran">
+              <div class="score-ring" id="scoreRing" aria-label="Indeks brań">
                 <strong id="scoreValue">--</strong>
                 <span>/100</span>
               </div>
             </div>
-            <p class="status-line" id="statusLine">Wczytywanie danych dla polskiego lowiska...</p>
+            <p class="status-line" id="statusLine">Wczytywanie danych dla polskiego łowiska...</p>
             <div class="advice-box" id="adviceBox">
-              Wybierz miejsce na mapie albo wpisz wspolrzedne w Polsce.
+              Wybierz miejsce na mapie albo wpisz współrzędne w Polsce.
             </div>
             <div class="metric-grid" id="metricGrid"></div>
             <details class="fishing-details">
@@ -159,20 +159,20 @@
             </details>
             <details class="fishing-assistant">
               <summary>
-                <span>Asystent łowienia</span>
+                <span>Fischer</span>
                 <i data-lucide="chevron-down"></i>
               </summary>
               <div class="assistant-panel">
                 <div class="assistant-summary" id="assistantSummary">
-                  Po pobraniu pogody dostaniesz tu krotka podpowiedz, gdzie, kiedy i na co warto lowic.
+                  Po pobraniu pogody Fischer podpowie, gdzie, kiedy i na co warto łowić.
                 </div>
                 <div class="assistant-prompts" aria-label="Szybkie pytania">
                   <button type="button" data-assistant-prompt="kiedy">Kiedy najlepiej?</button>
-                  <button type="button" data-assistant-prompt="gdzie">Gdzie szukac?</button>
-                  <button type="button" data-assistant-prompt="na co">Na co lowic?</button>
+                  <button type="button" data-assistant-prompt="gdzie">Gdzie szukać?</button>
+                  <button type="button" data-assistant-prompt="na co">Na co łowić?</button>
                 </div>
                 <form class="assistant-form" id="assistantForm">
-                  <input id="assistantQuestion" type="text" placeholder="Zapytaj np. na co lowic teraz?" />
+                  <input id="assistantQuestion" type="text" placeholder="Zapytaj np. na co łowić teraz?" />
                   <button class="primary-button" type="submit">
                     <i data-lucide="send"></i>
                     <span>Zapytaj</span>
@@ -186,12 +186,12 @@
           <section class="panel" aria-labelledby="hourlyHeading">
             <div class="panel-title-row">
               <div>
-                <p class="eyebrow">Najblizsze godziny</p>
+                <p class="eyebrow">Najbliższe godziny</p>
                 <h2 id="hourlyHeading">Okno na ryby</h2>
               </div>
-              <button class="icon-only" id="refreshButton" type="button" title="Odswiez pogode">
+              <button class="icon-only" id="refreshButton" type="button" title="Odśwież pogodę">
                 <i data-lucide="refresh-cw"></i>
-                <span class="visually-hidden">Odswiez</span>
+                <span class="visually-hidden">Odśwież</span>
               </button>
             </div>
             <div class="hourly-list" id="hourlyList"></div>
@@ -212,31 +212,31 @@
           <section class="map-section" aria-labelledby="mapHeading">
             <div class="map-toolbar">
               <div>
-                <p class="eyebrow">Mapa wedkarska</p>
-                <h2 id="mapHeading">Lowiska i punkty</h2>
+                <p class="eyebrow">Mapa wędkarska</p>
+                <h2 id="mapHeading">Łowiska i punkty</h2>
               </div>
               <div class="map-actions">
-                <button class="icon-button ghost" id="focusMapButton" type="button" title="Pokaz wybrane miejsce">
+                <button class="icon-button ghost" id="focusMapButton" type="button" title="Pokaż wybrane miejsce">
                   <i data-lucide="map-pin"></i>
                   <span>Centruj</span>
                 </button>
               </div>
             </div>
-            <div id="map" class="map" aria-label="Mapa lowisk"></div>
+            <div id="map" class="map" aria-label="Mapa łowisk"></div>
             <div class="map-fallback" id="mapFallback" hidden>
-              Mapa wymaga polaczenia z bibliotekami Leaflet i kafelkami OpenStreetMap.
+              Mapa wymaga połączenia z bibliotekami Leaflet i kafelkami OpenStreetMap.
             </div>
           </section>
 
           <section class="spot-editor" aria-labelledby="spotHeading">
             <div>
               <p class="eyebrow">Zapis punktu</p>
-              <h2 id="spotHeading">Nowe lowisko</h2>
+              <h2 id="spotHeading">Nowe łowisko</h2>
             </div>
             <form id="spotForm" class="spot-form">
               <label class="field">
                 <span>Nazwa</span>
-                <input id="spotNameInput" type="text" placeholder="np. zatoka przy pomoscie" required />
+                <input id="spotNameInput" type="text" placeholder="np. zatoka przy pomoście" required />
               </label>
               <label class="field">
                 <span>Typ</span>
@@ -251,15 +251,15 @@
               </label>
               <label class="field">
                 <span>Ryby</span>
-                <input id="spotSpeciesInput" type="text" placeholder="sandacz, szczupak, okon" />
+                <input id="spotSpeciesInput" type="text" placeholder="sandacz, szczupak, okoń" />
               </label>
               <label class="field wide">
                 <span>Notatka</span>
-                <textarea id="spotNotesInput" rows="2" placeholder="Glebokosc, przynety, dojazd"></textarea>
+                <textarea id="spotNotesInput" rows="2" placeholder="Głębokość, przynęty, dojazd"></textarea>
               </label>
               <button class="primary-button" type="submit">
                 <i data-lucide="plus"></i>
-                <span>Dodaj lowisko</span>
+                <span>Dodaj łowisko</span>
               </button>
             </form>
             <div class="spot-list" id="spotList"></div>
@@ -271,22 +271,22 @@
         <div class="album-head">
           <div>
             <p class="eyebrow">Album wypraw</p>
-            <h2 id="albumHeading">Zdjecia i polowy</h2>
+            <h2 id="albumHeading">Zdjęcia i połowy</h2>
           </div>
-          <button class="icon-button ghost" id="clearAlbumButton" type="button" title="Wyczysc album">
+          <button class="icon-button ghost" id="clearAlbumButton" type="button" title="Wyczyść album">
             <i data-lucide="trash-2"></i>
-            <span>Wyczysc</span>
+            <span>Wyczyść</span>
           </button>
         </div>
         <form id="photoForm" class="photo-form">
           <label class="file-drop" id="fileDrop" for="photoInput">
             <i data-lucide="image-plus"></i>
-            <span id="photoDropTitle">Dodaj zdjecia</span>
+            <span id="photoDropTitle">Dodaj zdjęcia</span>
             <small id="photoDropMeta">JPG, PNG, WebP</small>
           </label>
           <input id="photoInput" type="file" accept="image/*" multiple hidden />
           <label class="field">
-            <span>Lowisko</span>
+            <span>Łowisko</span>
             <select id="photoSpotSelect">
               <option value="">Bez przypisania</option>
             </select>
@@ -301,11 +301,11 @@
           </label>
           <label class="field wide">
             <span>Opis</span>
-            <input id="photoNoteInput" type="text" placeholder="Przyneta, pogoda, wymiar" />
+            <input id="photoNoteInput" type="text" placeholder="Przynęta, pogoda, wymiar" />
           </label>
           <button class="primary-button" type="submit">
             <i data-lucide="save"></i>
-            <span>Zapisz zdjecia</span>
+            <span>Zapisz zdjęcia</span>
           </button>
         </form>
         <div class="photo-status" id="photoStatus" role="status" aria-live="polite" hidden>
@@ -319,7 +319,7 @@
 
     <footer class="app-footer">
       <span>Dane pogodowe: prognoza Open-Meteo, obserwacje i wodowskazy IMGW-PIB.</span>
-      <span>Mapa: OpenStreetMap. Dane albumu i lowisk zostaja w tej przegladarce.</span>
+      <span>Mapa: OpenStreetMap. Dane albumu i łowisk zostają w tej przeglądarce.</span>
     </footer>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
