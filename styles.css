@@ -493,7 +493,8 @@ body.drawer-open {
   overflow-wrap: anywhere;
 }
 
-.fishing-details {
+.fishing-details,
+.fishing-assistant {
   margin-top: 14px;
   overflow: hidden;
   border: 1px solid rgba(168, 194, 197, 0.66);
@@ -501,7 +502,8 @@ body.drawer-open {
   background: rgba(255, 255, 255, 0.68);
 }
 
-.fishing-details summary {
+.fishing-details summary,
+.fishing-assistant summary {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -514,18 +516,21 @@ body.drawer-open {
   cursor: pointer;
 }
 
-.fishing-details summary::-webkit-details-marker {
+.fishing-details summary::-webkit-details-marker,
+.fishing-assistant summary::-webkit-details-marker {
   display: none;
 }
 
-.fishing-details summary svg {
+.fishing-details summary svg,
+.fishing-assistant summary svg {
   width: 18px;
   height: 18px;
   color: var(--water-dark);
   transition: transform 160ms ease;
 }
 
-.fishing-details[open] summary svg {
+.fishing-details[open] summary svg,
+.fishing-assistant[open] summary svg {
   transform: rotate(180deg);
 }
 
@@ -567,6 +572,64 @@ body.drawer-open {
   margin-top: 6px;
   color: var(--muted);
   line-height: 1.35;
+}
+
+.assistant-panel {
+  display: grid;
+  gap: 12px;
+  padding: 0 14px 14px;
+}
+
+.assistant-summary,
+.assistant-answer {
+  padding: 13px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: linear-gradient(180deg, #ffffff, #f7fbfb);
+  color: #173342;
+  line-height: 1.45;
+}
+
+.assistant-answer:empty {
+  display: none;
+}
+
+.assistant-prompts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.assistant-prompts button {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.78);
+  font-weight: 800;
+}
+
+.assistant-prompts button:hover {
+  border-color: #98c1c9;
+  background: #f4fbfc;
+}
+
+.assistant-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+
+.assistant-form input {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.94);
 }
 
 .hourly-list,
@@ -1263,6 +1326,7 @@ body.drawer-open {
   .workspace,
   .metric-grid,
   .detail-grid,
+  .assistant-form,
   .spot-form,
   .photo-form {
     grid-template-columns: 1fr;

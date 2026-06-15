@@ -194,6 +194,10 @@ const dom = {
   adviceBox: document.querySelector("#adviceBox"),
   metricGrid: document.querySelector("#metricGrid"),
   detailGrid: document.querySelector("#detailGrid"),
+  assistantSummary: document.querySelector("#assistantSummary"),
+  assistantForm: document.querySelector("#assistantForm"),
+  assistantQuestion: document.querySelector("#assistantQuestion"),
+  assistantAnswer: document.querySelector("#assistantAnswer"),
   hourlyList: document.querySelector("#hourlyList"),
   marineList: document.querySelector("#marineList"),
   map: document.querySelector("#map"),
@@ -354,6 +358,10 @@ function bindEvents() {
 
   dom.locateButton.addEventListener("click", locateUser);
   dom.spotForm.addEventListener("submit", handleSpotSubmit);
+  dom.assistantForm?.addEventListener("submit", handleAssistantSubmit);
+  document.querySelectorAll("[data-assistant-prompt]").forEach((button) => {
+    button.addEventListener("click", () => answerAssistant(button.dataset.assistantPrompt || ""));
+  });
   dom.photoInput.addEventListener("change", handlePhotoSelection);
   dom.photoForm.addEventListener("submit", handlePhotoSubmit);
   dom.clearAlbumButton.addEventListener("click", clearAlbum);
@@ -711,6 +719,7 @@ function renderWeather() {
     ["Temp. wody", formatMaybe(waterTemp, "°C")],
   ]);
   renderFishingDetails(now, state.weather.daily, state.weather.hourly, waterTemp);
+  renderAssistantSummary(score, now, state.weather.daily, state.weather.hourly, waterTemp);
   renderHourly(state.weather.hourly.slice(0, 12), waterTemp);
 }
 
@@ -720,6 +729,10 @@ function renderWeatherError(error) {
     "Nie udalo sie pobrac prognozy. Sprawdz internet albo sprobuj ponownie za chwile.";
   dom.metricGrid.innerHTML = "";
   dom.detailGrid.innerHTML = "";
+  if (dom.assistantSummary) {
+    dom.assistantSummary.textContent = "Asystent potrzebuje aktualnej pogody. Pobierz dane jeszcze raz.";
+  }
+  if (dom.assistantAnswer) dom.assistantAnswer.textContent = "";
   dom.hourlyList.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
   setStatus(error.message, "warn");
 }
@@ -788,6 +801,132 @@ function renderFishingDetails(now, daily, hourly, waterTemp) {
       `
     )
     .join("");
+}
+
+function renderAssistantSummary(score, now, daily, hourly, waterTemp) {
+  if (!dom.assistantSummary) return;
+  dom.assistantSummary.textContent = buildFishingAdvice("podsumowanie", score, now, daily, hourly, waterTemp);
+}
+
+function handleAssistantSubmit(event) {
+  event.preventDefault();
+  const question = dom.assistantQuestion?.value?.trim() || "";
+  answerAssistant(question);
+}
+
+function answerAssistant(question) {
+  if (!dom.assistantAnswer) return;
+  if (!state.weather?.current || !state.weather?.hourly?.length) {
+    dom.assistantAnswer.textContent = "Najpierw pobierz pogode dla lowiska. Wtedy odpowiem na bazie aktualnych danych.";
+    return;
+  }
+  const now = state.weather.current;
+  const waterTemp = hydroWaterTemp(state.water?.hydro);
+  const score = scoreFishingHour({
+    tempC: now.temperature,
+    windKph: now.windSpeed,
+    precipProbability: now.precipitationProbability,
+    rainMm: now.precipitation,
+    pressure: now.pressure,
+    waterTemp,
+    shortForecast: now.shortForecast,
+  });
+  dom.assistantAnswer.textContent = buildFishingAdvice(
+    question,
+    score,
+    now,
+    state.weather.daily,
+    state.weather.hourly,
+    waterTemp
+  );
+}
+
+function buildFishingAdvice(question, score, now, daily, hourly, waterTemp) {
+  const text = normalize(question || "");
+  const windows = bestFishingWindows(hourly, waterTemp, 3);
+  const places = placeAdvice(now);
+  const lures = lureAdvice(now, waterTemp);
+  const fish = fishAdvice(now, waterTemp);
+  const wind = `${formatMaybe(now.windSpeed, "km/h")} ${directionTextLong(now.windDirection)}`.trim();
+  const moon = moonPhaseInfo(new Date(now.startTime || Date.now()));
+  const windowsText = windows.length
+    ? windows.map((item) => `${item.time} (${item.score}/100)`).join(", ")
+    : "brak mocnego okna w najblizszych godzinach";
+
+  if (/kiedy|godzin|pora|czas|okno/.test(text)) {
+    return `Najlepsze najblizsze okna: ${windowsText}. Przy obecnych danych najpierw sprawdzalbym swit/zmierzch oraz godziny z lekkim wiatrem i stabilnym cisnieniem.`;
+  }
+  if (/gdzie|miejsce|brzeg|szukac|łowisko|lowisko/.test(text)) {
+    return `Szukaj przede wszystkim: ${places}. Przy wietrze ${wind || "brak danych"} zacznij od brzegu, na ktory spycha pokarm, zatok, trzcin i przejsc glebszej wody w plytsza.`;
+  }
+  if (/na co|przynet|lowic|łowić|ryb|gatunek|zestaw/.test(text)) {
+    return `Celowalbym w: ${fish}. Przynety/zestaw: ${lures}. Prowadz wolniej, jesli wiatr albo cisnienie sa trudne; szybciej oblawiaj aktywne ryby, jesli indeks jest wysoki.`;
+  }
+  if (/wiatr|kierunek|poryw/.test(text)) {
+    return `Wiatr teraz: ${wind || "brak danych"}, porywy ${formatMaybe(now.windGust, "km/h")}. W praktyce oblawiaj nawietrzny brzeg, cofki, doplywy i miejsca, gdzie fala miesza wode.`;
+  }
+  if (/ksiezyc|księżyc|slonce|słońce|uv|zmierzch|swit/.test(text)) {
+    return `Slonce: ${formatClock(daily?.sunrise)}-${formatClock(daily?.sunset)}, dzien ${formatDuration(daily?.daylightDuration)}. Ksiezyc: ${moon.name}, ok. ${moon.illumination}% oswietlenia. Najciekawsze beda okolice switu i zmierzchu.`;
+  }
+
+  return `Podsumowanie asystenta: warunki ${score.value}/100. Najlepsze okna: ${windowsText}. Gdzie: ${places}. Na co: ${fish}. Przynety: ${lures}. Wiatr ${wind || "brak danych"}, cisnienie ${formatMaybe(now.pressure, "hPa")}.`;
+}
+
+function bestFishingWindows(periods, waterTemp, count) {
+  if (!Array.isArray(periods)) return [];
+  return periods
+    .slice(0, 18)
+    .map((period) => {
+      const score = scoreFishingHour({
+        tempC: period.temperature,
+        windKph: period.windSpeed,
+        precipProbability: period.precipitationProbability,
+        rainMm: period.precipitation,
+        pressure: period.pressure,
+        waterTemp,
+        shortForecast: period.shortForecast,
+      });
+      return {
+        time: new Date(period.startTime).toLocaleTimeString("pl-PL", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        score: score.value,
+      };
+    })
+    .sort((a, b) => b.score - a.score)
+    .slice(0, count);
+}
+
+function placeAdvice(now) {
+  const wind = numberOrNull(now.windSpeed);
+  const rain = numberOrNull(now.precipitationProbability);
+  if (Number.isFinite(wind) && wind > 22) {
+    return "zatoki osloniete od mocnej fali, cofki, przesmyki i miejsca za trzcinami";
+  }
+  if (Number.isFinite(rain) && rain > 55) {
+    return "doplywy, splywy deszczowki, ciemniejsze pasy wody i granice metnej wody";
+  }
+  return "spady, blaty przy roslinnosci, trzcinowiska, pomosty, doplywy i przejscia plytko-gleboko";
+}
+
+function fishAdvice(now, waterTemp) {
+  const temp = firstNumber(waterTemp, now.temperature);
+  const wind = numberOrNull(now.windSpeed);
+  if (Number.isFinite(temp) && temp < 8) return "okon, sandacz i szczupak w wolniejszym prowadzeniu";
+  if (Number.isFinite(temp) && temp > 20) return "karp, amur, lin rano/wieczorem oraz drapieznik przy cieniu i tlenie";
+  if (Number.isFinite(wind) && wind >= 8 && wind <= 22) return "szczupak, okon, sandacz oraz biala ryba przy lekkiej fali";
+  return "okon, szczupak, sandacz, leszcz albo karp - zależnie od lowiska";
+}
+
+function lureAdvice(now, waterTemp) {
+  const wind = numberOrNull(now.windSpeed);
+  const rain = numberOrNull(now.precipitationProbability);
+  const temp = firstNumber(waterTemp, now.temperature);
+  if (Number.isFinite(temp) && temp > 20) return "kukurydza, pellet, method feeder, robak; na drapieznika guma przy dnie albo wobler o zmierzchu";
+  if (Number.isFinite(wind) && wind > 24) return "ciezsza guma, obrotowka/wahadlowka, feeder z ciezszym koszykiem albo zestaw przy dnie";
+  if (Number.isFinite(rain) && rain > 55) return "zapachowe przynety, feeder, robaki, gumy w naturalnych kolorach przy doplywach";
+  return "gumy 5-9 cm, obrotowki, wobler przy roslinnosci, feeder lub method przy spokojniejszych miejscach";
 }
 
 function renderHourly(periods, waterTemp) {

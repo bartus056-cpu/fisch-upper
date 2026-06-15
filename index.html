@@ -28,7 +28,78 @@
           <span>Fisch Upper</span>
         </div>
       </div>
+      <button
+        class="menu-button"
+        id="menuButton"
+        type="button"
+        aria-label="Otworz menu"
+        aria-expanded="false"
+        aria-controls="appDrawer"
+      >
+        <span class="menu-dots" aria-hidden="true">⋮</span>
+      </button>
     </header>
+
+    <div class="drawer-overlay" id="drawerOverlay" hidden></div>
+    <aside class="app-drawer" id="appDrawer" aria-label="Menu aplikacji" aria-hidden="true" inert>
+      <div class="drawer-head">
+        <div>
+          <p class="eyebrow">Menu</p>
+          <h2>Fisch Upper</h2>
+        </div>
+        <button class="icon-only" id="drawerCloseButton" type="button" title="Zamknij menu">
+          <i data-lucide="x"></i>
+          <span class="visually-hidden">Zamknij</span>
+        </button>
+      </div>
+
+      <div class="drawer-actions">
+        <button class="drawer-action" id="exportDataButton" type="button">
+          <i data-lucide="download"></i>
+          <span>
+            <strong>Eksportuj kopie</strong>
+            <small>Zapisz lowiska, notatki i album do pliku JSON.</small>
+          </span>
+        </button>
+        <button class="drawer-action" id="importDataButton" type="button">
+          <i data-lucide="upload"></i>
+          <span>
+            <strong>Importuj kopie</strong>
+            <small>Przywroc dane z wczesniej zapisanego pliku.</small>
+          </span>
+        </button>
+        <input id="importDataInput" type="file" accept="application/json" hidden />
+      </div>
+
+      <details class="drawer-about">
+        <summary>
+          <span>O stronie</span>
+          <i data-lucide="chevron-down"></i>
+        </summary>
+        <div class="drawer-about-content">
+          <h3>Fisch Upper: pogoda, mapa lowisk i album wypraw</h3>
+          <p>
+            Fisch Upper pomaga szybko sprawdzic warunki nad woda, zapisac swoje
+            lowiska na mapie i prowadzic prosty album zdjec z wypraw.
+          </p>
+          <div class="drawer-info-grid">
+            <div>
+              <strong>Jak dziala</strong>
+              <span>Liczy indeks bran z temperatury, wiatru, opadow, cisnienia, danych o wodzie oraz swiatla.</span>
+            </div>
+            <div>
+              <strong>Dane</strong>
+              <span>Prognoza: Open-Meteo. Obserwacje i wodowskazy: IMGW-PIB. Mapa: OpenStreetMap.</span>
+            </div>
+            <div>
+              <strong>Prywatnosc</strong>
+              <span>Lowiska, notatki i zdjecia zostaja lokalnie w tej przegladarce.</span>
+            </div>
+          </div>
+          <p class="signature">Stworzone z mysla o wedkarzach przez <strong>Bartosza Rozka</strong>.</p>
+        </div>
+      </details>
+    </aside>
 
     <main class="app-shell">
       <section class="control-strip" aria-label="Wybierz lokalizacje">
@@ -85,6 +156,30 @@
                 <i data-lucide="chevron-down"></i>
               </summary>
               <div class="detail-grid" id="detailGrid"></div>
+            </details>
+            <details class="fishing-assistant">
+              <summary>
+                <span>Asystent łowienia</span>
+                <i data-lucide="chevron-down"></i>
+              </summary>
+              <div class="assistant-panel">
+                <div class="assistant-summary" id="assistantSummary">
+                  Po pobraniu pogody dostaniesz tu krotka podpowiedz, gdzie, kiedy i na co warto lowic.
+                </div>
+                <div class="assistant-prompts" aria-label="Szybkie pytania">
+                  <button type="button" data-assistant-prompt="kiedy">Kiedy najlepiej?</button>
+                  <button type="button" data-assistant-prompt="gdzie">Gdzie szukac?</button>
+                  <button type="button" data-assistant-prompt="na co">Na co lowic?</button>
+                </div>
+                <form class="assistant-form" id="assistantForm">
+                  <input id="assistantQuestion" type="text" placeholder="Zapytaj np. na co lowic teraz?" />
+                  <button class="primary-button" type="submit">
+                    <i data-lucide="send"></i>
+                    <span>Zapytaj</span>
+                  </button>
+                </form>
+                <div class="assistant-answer" id="assistantAnswer" aria-live="polite"></div>
+              </div>
             </details>
           </section>
 
@@ -219,61 +314,6 @@
         </div>
         <div class="album-grid" id="albumGrid"></div>
       </section>
-
-      <section class="settings-section" aria-labelledby="settingsHeading">
-        <div class="settings-head">
-          <div>
-            <p class="eyebrow">Ustawienia</p>
-            <h2 id="settingsHeading">Kopia danych</h2>
-          </div>
-          <p>Zapisz albo przywroc swoje lowiska, notatki i album zdjec.</p>
-        </div>
-        <div class="settings-actions">
-          <button class="icon-button" id="exportDataButton" type="button" title="Eksportuj dane">
-            <i data-lucide="download"></i>
-            <span>Eksportuj kopie</span>
-          </button>
-          <button class="icon-button ghost" id="importDataButton" type="button" title="Importuj dane">
-            <i data-lucide="upload"></i>
-            <span>Importuj kopie</span>
-          </button>
-          <input id="importDataInput" type="file" accept="application/json" hidden />
-        </div>
-      </section>
-
-      <details class="about-section">
-        <summary>
-          <span>O stronie</span>
-          <i data-lucide="chevron-down"></i>
-        </summary>
-        <div class="about-content">
-          <div>
-            <p class="eyebrow">O tej stronie</p>
-            <h2>Fisch Upper: pogoda, mapa łowisk i album wypraw</h2>
-          </div>
-          <p>
-            Fisch Upper pomaga szybko sprawdzić warunki nad wodą, zapisać swoje
-            łowiska na mapie i prowadzić prosty album zdjęć z wypraw. Strona
-            łączy prognozę pogody, obserwacje meteorologiczne i dane wodowskazowe,
-            żeby łatwiej ocenić, kiedy warto jechać na ryby.
-          </p>
-          <div class="about-grid">
-            <div>
-              <strong>Jak działa</strong>
-              <span>Wybierasz łowisko albo GPS, a aplikacja liczy indeks brań z temperatury, wiatru, opadów, ciśnienia i danych o wodzie.</span>
-            </div>
-            <div>
-              <strong>Na czym bazuje</strong>
-              <span>Prognoza pochodzi z Open-Meteo, obserwacje i wodowskazy z IMGW-PIB, a mapa z OpenStreetMap.</span>
-            </div>
-            <div>
-              <strong>Dane prywatne</strong>
-              <span>Łowiska, notatki i album zdjęć zapisują się lokalnie w tej przeglądarce, dopóki ich nie usuniesz.</span>
-            </div>
-          </div>
-          <p class="signature">Stworzone z myślą o wędkarzach i spokojnych wyprawach nad wodę przez <strong>Bartosza Rożka</strong>.</p>
-        </div>
-      </details>
 
     </main>
 
