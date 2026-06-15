@@ -193,6 +193,7 @@ const dom = {
   statusLine: document.querySelector("#statusLine"),
   adviceBox: document.querySelector("#adviceBox"),
   metricGrid: document.querySelector("#metricGrid"),
+  detailGrid: document.querySelector("#detailGrid"),
   hourlyList: document.querySelector("#hourlyList"),
   marineList: document.querySelector("#marineList"),
   map: document.querySelector("#map"),
@@ -544,20 +545,39 @@ async function fetchForecast(lat, lon) {
       "relative_humidity_2m",
       "precipitation",
       "weather_code",
+      "apparent_temperature",
+      "cloud_cover",
       "wind_speed_10m",
       "wind_direction_10m",
+      "wind_gusts_10m",
       "pressure_msl",
+      "is_day",
     ].join(","),
     hourly: [
       "temperature_2m",
+      "apparent_temperature",
+      "dew_point_2m",
       "relative_humidity_2m",
       "precipitation_probability",
       "precipitation",
       "weather_code",
       "wind_speed_10m",
       "wind_direction_10m",
+      "wind_gusts_10m",
       "pressure_msl",
       "cloud_cover",
+      "visibility",
+    ].join(","),
+    daily: [
+      "sunrise",
+      "sunset",
+      "daylight_duration",
+      "sunshine_duration",
+      "uv_index_max",
+      "precipitation_probability_max",
+      "wind_speed_10m_max",
+      "wind_gusts_10m_max",
+      "wind_direction_10m_dominant",
     ].join(","),
   });
   return fetchJson(url.toString(), "prognoza Open-Meteo");
@@ -586,6 +606,7 @@ function buildWeatherState(forecast, synop) {
     forecast,
     current,
     hourly: periods,
+    daily: normalizeDailyForecast(forecast),
     synop,
   };
 }
@@ -603,10 +624,34 @@ function normalizeCurrentForecast(current, firstPeriod, synop) {
     precipitationProbability: firstNumber(firstPeriod?.precipitationProbability),
     precipitation: firstNumber(source.precipitation, firstPeriod?.precipitation, synopNumber(synop, "suma_opadu")),
     weatherCode: firstNumber(source.weather_code, firstPeriod?.weatherCode),
+    apparentTemperature: firstNumber(source.apparent_temperature, firstPeriod?.apparentTemperature),
+    dewPoint: firstNumber(firstPeriod?.dewPoint),
+    cloudCover: firstNumber(source.cloud_cover, firstPeriod?.cloudCover),
     windSpeed: firstNumber(source.wind_speed_10m, firstPeriod?.windSpeed, synopWindKph(synop)),
     windDirection: firstNumber(source.wind_direction_10m, firstPeriod?.windDirection, synopNumber(synop, "kierunek_wiatru")),
+    windGust: firstNumber(source.wind_gusts_10m, firstPeriod?.windGust),
     pressure: firstNumber(source.pressure_msl, firstPeriod?.pressure, synopNumber(synop, "cisnienie")),
+    visibility: firstNumber(firstPeriod?.visibility),
+    isDay: firstNumber(source.is_day),
     shortForecast: weatherDescription(firstNumber(source.weather_code, firstPeriod?.weatherCode)),
+  };
+}
+
+function normalizeDailyForecast(forecast) {
+  const daily = forecast.daily || {};
+  if (!Array.isArray(daily.time) || !daily.time.length) return null;
+  const index = 0;
+  return {
+    date: daily.time[index],
+    sunrise: daily.sunrise?.[index] || null,
+    sunset: daily.sunset?.[index] || null,
+    daylightDuration: numberOrNull(daily.daylight_duration?.[index]),
+    sunshineDuration: numberOrNull(daily.sunshine_duration?.[index]),
+    uvIndexMax: numberOrNull(daily.uv_index_max?.[index]),
+    precipitationProbabilityMax: numberOrNull(daily.precipitation_probability_max?.[index]),
+    windSpeedMax: numberOrNull(daily.wind_speed_10m_max?.[index]),
+    windGustMax: numberOrNull(daily.wind_gusts_10m_max?.[index]),
+    dominantWindDirection: numberOrNull(daily.wind_direction_10m_dominant?.[index]),
   };
 }
 
@@ -618,14 +663,18 @@ function openMeteoHourlyPeriods(forecast) {
     .map((time, index) => ({
       startTime: time,
       temperature: numberOrNull(hourly.temperature_2m?.[index]),
+      apparentTemperature: numberOrNull(hourly.apparent_temperature?.[index]),
+      dewPoint: numberOrNull(hourly.dew_point_2m?.[index]),
       relativeHumidity: numberOrNull(hourly.relative_humidity_2m?.[index]),
       precipitationProbability: numberOrNull(hourly.precipitation_probability?.[index]),
       precipitation: numberOrNull(hourly.precipitation?.[index]),
       weatherCode: numberOrNull(hourly.weather_code?.[index]),
       windSpeed: numberOrNull(hourly.wind_speed_10m?.[index]),
       windDirection: numberOrNull(hourly.wind_direction_10m?.[index]),
+      windGust: numberOrNull(hourly.wind_gusts_10m?.[index]),
       pressure: numberOrNull(hourly.pressure_msl?.[index]),
       cloudCover: numberOrNull(hourly.cloud_cover?.[index]),
+      visibility: numberOrNull(hourly.visibility?.[index]),
       shortForecast: weatherDescription(hourly.weather_code?.[index]),
     }))
     .filter((period) => new Date(period.startTime).getTime() >= now)
@@ -661,6 +710,7 @@ function renderWeather() {
     ["Cisnienie", formatMaybe(now.pressure, "hPa")],
     ["Temp. wody", formatMaybe(waterTemp, "°C")],
   ]);
+  renderFishingDetails(now, state.weather.daily, state.weather.hourly, waterTemp);
   renderHourly(state.weather.hourly.slice(0, 12), waterTemp);
 }
 
@@ -669,6 +719,7 @@ function renderWeatherError(error) {
   dom.adviceBox.textContent =
     "Nie udalo sie pobrac prognozy. Sprawdz internet albo sprobuj ponownie za chwile.";
   dom.metricGrid.innerHTML = "";
+  dom.detailGrid.innerHTML = "";
   dom.hourlyList.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
   setStatus(error.message, "warn");
 }
@@ -681,6 +732,59 @@ function renderMetrics(metrics) {
           <span>${escapeHtml(label)}</span>
           <strong>${escapeHtml(value)}</strong>
         </div>
+      `
+    )
+    .join("");
+}
+
+function renderFishingDetails(now, daily, hourly, waterTemp) {
+  const moon = moonPhaseInfo(new Date(now.startTime || Date.now()));
+  const pressureTrend = pressureTrendText(hourly);
+  const cards = [
+    [
+      "Wiatr dokładnie",
+      `${formatMaybe(now.windSpeed, "km/h")} ${directionTextLong(now.windDirection)}`,
+      `Porywy: ${formatMaybe(now.windGust, "km/h")} · dziś max ${formatMaybe(daily?.windGustMax, "km/h")}`,
+    ],
+    [
+      "Słońce",
+      `${formatClock(daily?.sunrise)} - ${formatClock(daily?.sunset)}`,
+      `Długość dnia: ${formatDuration(daily?.daylightDuration)} · słońca: ${formatDuration(daily?.sunshineDuration)}`,
+    ],
+    [
+      "Księżyc",
+      moon.name,
+      `Oświetlenie ok. ${moon.illumination}% · wiek ${roundNumber(moon.age)} dnia`,
+    ],
+    [
+      "Niebo i widoczność",
+      `${formatMaybe(now.cloudCover, "%")} chmur`,
+      `Widoczność: ${formatVisibility(now.visibility)} · UV max ${formatMaybe(daily?.uvIndexMax, "")}`,
+    ],
+    [
+      "Odczuwalnie",
+      formatMaybe(now.apparentTemperature, "°C"),
+      `Punkt rosy: ${formatMaybe(now.dewPoint, "°C")} · wilgotność ${formatMaybe(now.relativeHumidity, "%")}`,
+    ],
+    [
+      "Ciśnienie",
+      formatMaybe(now.pressure, "hPa"),
+      `${pressureTrend} · ryzyko opadu dziś max ${formatMaybe(daily?.precipitationProbabilityMax, "%")}`,
+    ],
+  ];
+
+  if (Number.isFinite(waterTemp)) {
+    cards.push(["Woda", formatMaybe(waterTemp, "°C"), "Temperatura z najbliższych danych IMGW, jeśli jest dostępna."]);
+  }
+
+  dom.detailGrid.innerHTML = cards
+    .map(
+      ([label, value, note]) => `
+        <article class="detail-card">
+          <span>${escapeHtml(label)}</span>
+          <strong>${escapeHtml(value)}</strong>
+          <small>${escapeHtml(note)}</small>
+        </article>
       `
     )
     .join("");
@@ -1250,9 +1354,70 @@ function directionText(degrees) {
   return sectors[Math.round(value / 45) % 8];
 }
 
+function directionTextLong(degrees) {
+  const value = Number(degrees);
+  if (!Number.isFinite(value)) return "";
+  return `${directionText(value)} (${Math.round(value)}°)`;
+}
+
 function formatMaybe(value, suffix) {
   const number = numberOrNull(value);
   return Number.isFinite(number) ? `${roundNumber(number)}${suffix}` : "brak danych";
+}
+
+function formatClock(value) {
+  if (!value) return "--:--";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "--:--";
+  return date.toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" });
+}
+
+function formatDuration(seconds) {
+  const value = Number(seconds);
+  if (!Number.isFinite(value)) return "brak danych";
+  const hours = Math.floor(value / 3600);
+  const minutes = Math.round((value % 3600) / 60);
+  return `${hours}h ${String(minutes).padStart(2, "0")}min`;
+}
+
+function formatVisibility(meters) {
+  const value = Number(meters);
+  if (!Number.isFinite(value)) return "brak danych";
+  return value >= 1000 ? `${roundNumber(value / 1000)} km` : `${Math.round(value)} m`;
+}
+
+function pressureTrendText(periods) {
+  if (!Array.isArray(periods) || periods.length < 4) return "Trend ciśnienia: brak danych";
+  const start = numberOrNull(periods[0]?.pressure);
+  const next = numberOrNull(periods[3]?.pressure);
+  if (!Number.isFinite(start) || !Number.isFinite(next)) return "Trend ciśnienia: brak danych";
+  const diff = Math.round((next - start) * 10) / 10;
+  if (Math.abs(diff) < 0.8) return "Ciśnienie stabilne";
+  return diff > 0 ? `Ciśnienie rośnie o ${diff} hPa / 3h` : `Ciśnienie spada o ${Math.abs(diff)} hPa / 3h`;
+}
+
+function moonPhaseInfo(date) {
+  const synodicMonth = 29.530588853;
+  const knownNewMoon = Date.UTC(2000, 0, 6, 18, 14);
+  const noon = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 12);
+  const age = (((noon - knownNewMoon) / 86400000) % synodicMonth + synodicMonth) % synodicMonth;
+  const illumination = Math.round(((1 - Math.cos((age / synodicMonth) * 2 * Math.PI)) / 2) * 100);
+  const phases = [
+    [1.84566, "Nów"],
+    [5.53699, "Przybywający sierp"],
+    [9.22831, "I kwadra"],
+    [12.91963, "Przybywający garb"],
+    [16.61096, "Pełnia"],
+    [20.30228, "Ubywający garb"],
+    [23.99361, "III kwadra"],
+    [27.68493, "Ubywający sierp"],
+    [synodicMonth, "Nów"],
+  ];
+  return {
+    age,
+    illumination,
+    name: phases.find(([limit]) => age < limit)?.[1] || "Nów",
+  };
 }
 
 function photoCountLabel(count) {

@@ -493,6 +493,82 @@ body.drawer-open {
   overflow-wrap: anywhere;
 }
 
+.fishing-details {
+  margin-top: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(168, 194, 197, 0.66);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.68);
+}
+
+.fishing-details summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  padding: 12px 14px;
+  color: #173342;
+  font-weight: 850;
+  list-style: none;
+  cursor: pointer;
+}
+
+.fishing-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.fishing-details summary svg {
+  width: 18px;
+  height: 18px;
+  color: var(--water-dark);
+  transition: transform 160ms ease;
+}
+
+.fishing-details[open] summary svg {
+  transform: rotate(180deg);
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding: 0 14px 14px;
+}
+
+.detail-card {
+  min-height: 98px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: linear-gradient(180deg, #ffffff, #f7fbfb);
+}
+
+.detail-card span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 850;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+.detail-card strong {
+  display: block;
+  margin-top: 6px;
+  color: var(--ink);
+  font-size: 1rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.detail-card small {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
 .hourly-list,
 .marine-list,
 .spot-list {
@@ -1186,6 +1262,7 @@ body.drawer-open {
   .control-strip,
   .workspace,
   .metric-grid,
+  .detail-grid,
   .spot-form,
   .photo-form {
     grid-template-columns: 1fr;
