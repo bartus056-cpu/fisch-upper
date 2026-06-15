@@ -9,7 +9,7 @@
     />
     <title>Fisch Upper</title>
     <meta name="theme-color" content="#087cbd" />
-    <link rel="manifest" href="./manifest.webmanifest?v=20260615-2" />
+    <link rel="manifest" href="./manifest.webmanifest?v=20260615-3" />
     <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16.png" />
     <link rel="apple-touch-icon" href="./icon-180.png" />
@@ -18,7 +18,7 @@
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
       crossorigin=""
     />
-    <link rel="stylesheet" href="./styles.css?v=20260615-2" />
+    <link rel="stylesheet" href="./styles.css?v=20260615-3" />
   </head>
   <body>
     <header class="app-header">
@@ -36,7 +36,7 @@
         aria-expanded="false"
         aria-controls="appDrawer"
       >
-        <i data-lucide="more-vertical"></i>
+        <span class="menu-dots" aria-hidden="true">⋮</span>
       </button>
     </header>
 
@@ -110,6 +110,11 @@
     </aside>
 
     <main class="app-shell">
+      <div class="boot-warning" id="bootWarning" role="status">
+        <strong>Aplikacja jeszcze sie laduje.</strong>
+        <span>Jesli ten komunikat nie znika, na stronie brakuje aktualnego pliku app.js albo przegladarka trzyma stara wersje.</span>
+      </div>
+
       <section class="control-strip" aria-label="Wybierz lokalizacje">
         <label class="field compact">
           <span>Gotowe miejsce</span>
@@ -301,6 +306,6 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <script src="./app.js?v=20260615-2"></script>
+    <script src="./app.js?v=20260615-3" onerror="document.getElementById('bootWarning')?.classList.add('is-error')"></script>
   </body>
 </html>

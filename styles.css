@@ -157,6 +157,34 @@ h2 {
   padding: 18px clamp(12px, 2vw, 28px) 24px;
 }
 
+.boot-warning {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border: 1px solid rgba(214, 138, 24, 0.42);
+  border-left: 4px solid var(--sun);
+  border-radius: 8px;
+  color: #173342;
+  background: #fff7e9;
+  box-shadow: var(--shadow-soft);
+}
+
+.boot-warning[hidden] {
+  display: none;
+}
+
+.boot-warning span {
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.boot-warning.is-error {
+  border-color: rgba(184, 74, 90, 0.45);
+  border-left-color: var(--rose);
+  background: #fff1f3;
+}
+
 .control-strip {
   display: grid;
   grid-template-columns: minmax(180px, 1.3fr) repeat(4, minmax(120px, 0.8fr)) auto auto;
@@ -289,6 +317,16 @@ button:focus-visible,
 .menu-button:hover {
   background: #eaf4f5;
   border-color: #94bac2;
+}
+
+.menu-dots {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 28px;
+  font-size: 1.8rem;
+  line-height: 1;
+  color: var(--deep);
 }
 
 .primary-button svg,
