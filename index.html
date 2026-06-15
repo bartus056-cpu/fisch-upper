@@ -28,7 +28,86 @@
           <span>Fisch Upper</span>
         </div>
       </div>
+      <button
+        class="menu-button"
+        id="menuButton"
+        type="button"
+        aria-label="Otworz menu"
+        aria-expanded="false"
+        aria-controls="appDrawer"
+      >
+        <i data-lucide="more-vertical"></i>
+      </button>
     </header>
+
+    <div class="drawer-overlay" id="drawerOverlay" hidden></div>
+    <aside class="app-drawer" id="appDrawer" aria-label="Menu aplikacji" aria-hidden="true" inert>
+      <div class="drawer-head">
+        <div>
+          <p class="eyebrow">Menu</p>
+          <h2>Fisch Upper</h2>
+        </div>
+        <button class="icon-only" id="drawerCloseButton" type="button" title="Zamknij menu">
+          <i data-lucide="x"></i>
+          <span class="visually-hidden">Zamknij</span>
+        </button>
+      </div>
+
+      <div class="drawer-actions">
+        <button class="drawer-action" id="exportDataButton" type="button">
+          <i data-lucide="download"></i>
+          <span>
+            <strong>Eksportuj kopie</strong>
+            <small>Zapisz lowiska, notatki i album do pliku JSON.</small>
+          </span>
+        </button>
+        <button class="drawer-action" id="importDataButton" type="button">
+          <i data-lucide="upload"></i>
+          <span>
+            <strong>Importuj kopie</strong>
+            <small>Przywroc dane z wczesniej zapisanego pliku.</small>
+          </span>
+        </button>
+        <input id="importDataInput" type="file" accept="application/json" hidden />
+      </div>
+
+      <details class="drawer-about">
+        <summary>
+          <span>O stronie</span>
+          <i data-lucide="chevron-down"></i>
+        </summary>
+        <div class="drawer-about-content">
+          <h3>Fisch Upper: pogoda, mapa łowisk i album wypraw</h3>
+          <p>
+            Fisch Upper pomaga szybko sprawdzić warunki nad wodą, zapisać swoje
+            łowiska na mapie i prowadzić prosty album zdjęć z wypraw.
+          </p>
+          <div class="drawer-info-grid">
+            <div>
+              <strong>Jak działa</strong>
+              <span>Liczy indeks brań z temperatury, wiatru, opadów, ciśnienia i danych o wodzie.</span>
+            </div>
+            <div>
+              <strong>Dane</strong>
+              <span>Prognoza: Open-Meteo. Obserwacje i wodowskazy: IMGW-PIB. Mapa: OpenStreetMap.</span>
+            </div>
+            <div>
+              <strong>Prywatność</strong>
+              <span>Łowiska, notatki i zdjęcia zostają lokalnie w tej przeglądarce.</span>
+            </div>
+          </div>
+          <p class="signature">Stworzone z myślą o wędkarzach przez <strong>Bartosza Rożka</strong>.</p>
+        </div>
+      </details>
+
+      <div class="future-login">
+        <i data-lucide="user-round"></i>
+        <div>
+          <strong>Logowanie</strong>
+          <span>Konto, synchronizacje i zapis w chmurze mozna dodac pozniej.</span>
+        </div>
+      </div>
+    </aside>
 
     <main class="app-shell">
       <section class="control-strip" aria-label="Wybierz lokalizacje">
@@ -177,10 +256,10 @@
           </button>
         </div>
         <form id="photoForm" class="photo-form">
-          <label class="file-drop" for="photoInput">
+          <label class="file-drop" id="fileDrop" for="photoInput">
             <i data-lucide="image-plus"></i>
-            <span>Dodaj zdjecia</span>
-            <small>JPG, PNG, WebP</small>
+            <span id="photoDropTitle">Dodaj zdjecia</span>
+            <small id="photoDropMeta">JPG, PNG, WebP</small>
           </label>
           <input id="photoInput" type="file" accept="image/*" multiple hidden />
           <label class="field">
@@ -206,63 +285,13 @@
             <span>Zapisz zdjecia</span>
           </button>
         </form>
+        <div class="photo-status" id="photoStatus" role="status" aria-live="polite" hidden>
+          <i data-lucide="info"></i>
+          <span id="photoStatusText"></span>
+        </div>
         <div class="album-grid" id="albumGrid"></div>
       </section>
 
-      <section class="settings-section" aria-labelledby="settingsHeading">
-        <div class="settings-head">
-          <div>
-            <p class="eyebrow">Ustawienia</p>
-            <h2 id="settingsHeading">Kopia danych</h2>
-          </div>
-          <p>Zapisz albo przywroc swoje lowiska, notatki i album zdjec.</p>
-        </div>
-        <div class="settings-actions">
-          <button class="icon-button" id="exportDataButton" type="button" title="Eksportuj dane">
-            <i data-lucide="download"></i>
-            <span>Eksportuj kopie</span>
-          </button>
-          <button class="icon-button ghost" id="importDataButton" type="button" title="Importuj dane">
-            <i data-lucide="upload"></i>
-            <span>Importuj kopie</span>
-          </button>
-          <input id="importDataInput" type="file" accept="application/json" hidden />
-        </div>
-      </section>
-
-      <details class="about-section">
-        <summary>
-          <span>O stronie</span>
-          <i data-lucide="chevron-down"></i>
-        </summary>
-        <div class="about-content">
-          <div>
-            <p class="eyebrow">O tej stronie</p>
-            <h2>Fisch Upper: pogoda, mapa łowisk i album wypraw</h2>
-          </div>
-          <p>
-            Fisch Upper pomaga szybko sprawdzić warunki nad wodą, zapisać swoje
-            łowiska na mapie i prowadzić prosty album zdjęć z wypraw. Strona
-            łączy prognozę pogody, obserwacje meteorologiczne i dane wodowskazowe,
-            żeby łatwiej ocenić, kiedy warto jechać na ryby.
-          </p>
-          <div class="about-grid">
-            <div>
-              <strong>Jak działa</strong>
-              <span>Wybierasz łowisko albo GPS, a aplikacja liczy indeks brań z temperatury, wiatru, opadów, ciśnienia i danych o wodzie.</span>
-            </div>
-            <div>
-              <strong>Na czym bazuje</strong>
-              <span>Prognoza pochodzi z Open-Meteo, obserwacje i wodowskazy z IMGW-PIB, a mapa z OpenStreetMap.</span>
-            </div>
-            <div>
-              <strong>Dane prywatne</strong>
-              <span>Łowiska, notatki i album zdjęć zapisują się lokalnie w tej przeglądarce, dopóki ich nie usuniesz.</span>
-            </div>
-          </div>
-          <p class="signature">Stworzone z myślą o wędkarzach i spokojnych wyprawach nad wodę przez <strong>Bartosza Rożka</strong>.</p>
-        </div>
-      </details>
     </main>
 
     <footer class="app-footer">

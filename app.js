@@ -204,13 +204,22 @@ const dom = {
   spotNotesInput: document.querySelector("#spotNotesInput"),
   spotList: document.querySelector("#spotList"),
   photoForm: document.querySelector("#photoForm"),
+  fileDrop: document.querySelector("#fileDrop"),
   photoInput: document.querySelector("#photoInput"),
+  photoDropTitle: document.querySelector("#photoDropTitle"),
+  photoDropMeta: document.querySelector("#photoDropMeta"),
   photoSpotSelect: document.querySelector("#photoSpotSelect"),
   photoSpeciesInput: document.querySelector("#photoSpeciesInput"),
   photoDateInput: document.querySelector("#photoDateInput"),
   photoNoteInput: document.querySelector("#photoNoteInput"),
+  photoStatus: document.querySelector("#photoStatus"),
+  photoStatusText: document.querySelector("#photoStatusText"),
   albumGrid: document.querySelector("#albumGrid"),
   clearAlbumButton: document.querySelector("#clearAlbumButton"),
+  menuButton: document.querySelector("#menuButton"),
+  appDrawer: document.querySelector("#appDrawer"),
+  drawerOverlay: document.querySelector("#drawerOverlay"),
+  drawerCloseButton: document.querySelector("#drawerCloseButton"),
   exportDataButton: document.querySelector("#exportDataButton"),
   importDataButton: document.querySelector("#importDataButton"),
   importDataInput: document.querySelector("#importDataInput"),
@@ -329,11 +338,41 @@ function bindEvents() {
 
   dom.locateButton.addEventListener("click", locateUser);
   dom.spotForm.addEventListener("submit", handleSpotSubmit);
+  dom.photoInput.addEventListener("change", handlePhotoSelection);
   dom.photoForm.addEventListener("submit", handlePhotoSubmit);
   dom.clearAlbumButton.addEventListener("click", clearAlbum);
-  dom.exportDataButton.addEventListener("click", exportData);
+  dom.menuButton.addEventListener("click", openDrawer);
+  dom.drawerCloseButton.addEventListener("click", closeDrawer);
+  dom.drawerOverlay.addEventListener("click", closeDrawer);
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeDrawer();
+  });
+  dom.exportDataButton.addEventListener("click", () => {
+    exportData();
+    closeDrawer();
+  });
   dom.importDataButton.addEventListener("click", () => dom.importDataInput.click());
   dom.importDataInput.addEventListener("change", importData);
+}
+
+function openDrawer() {
+  dom.drawerOverlay.hidden = false;
+  dom.appDrawer.removeAttribute("inert");
+  dom.appDrawer.classList.add("is-open");
+  dom.appDrawer.setAttribute("aria-hidden", "false");
+  dom.menuButton.setAttribute("aria-expanded", "true");
+  document.body.classList.add("drawer-open");
+}
+
+function closeDrawer() {
+  dom.appDrawer.classList.remove("is-open");
+  dom.appDrawer.setAttribute("aria-hidden", "true");
+  dom.appDrawer.setAttribute("inert", "");
+  dom.menuButton.setAttribute("aria-expanded", "false");
+  document.body.classList.remove("drawer-open");
+  window.setTimeout(() => {
+    if (!dom.appDrawer.classList.contains("is-open")) dom.drawerOverlay.hidden = true;
+  }, 190);
 }
 
 function hydrateInputs() {
@@ -341,6 +380,39 @@ function hydrateInputs() {
   dom.lonInput.value = state.selected.lon;
   dom.stationInput.value = state.selected.station || "";
   dom.photoDateInput.valueAsDate = new Date();
+}
+
+function handlePhotoSelection() {
+  const files = Array.from(dom.photoInput.files || []);
+  if (!files.length) {
+    resetPhotoPicker();
+    setPhotoStatus("");
+    return;
+  }
+
+  const totalBytes = files.reduce((sum, file) => sum + file.size, 0);
+  dom.fileDrop.classList.add("has-files");
+  dom.photoDropTitle.textContent = files.length === 1 ? files[0].name : `${photoCountLabel(files.length)} wybrane`;
+  dom.photoDropMeta.textContent = `${formatFileSize(totalBytes)} gotowe do zapisu`;
+  setPhotoStatus(`Wybrano ${photoCountLabel(files.length)}. Kliknij „Zapisz zdjecia”.`, "working");
+}
+
+function resetPhotoPicker() {
+  dom.fileDrop.classList.remove("has-files");
+  dom.photoDropTitle.textContent = "Dodaj zdjecia";
+  dom.photoDropMeta.textContent = "JPG, PNG, WebP";
+}
+
+function setPhotoStatus(message, tone = "normal") {
+  if (!message) {
+    dom.photoStatus.hidden = true;
+    dom.photoStatusText.textContent = "";
+    dom.photoStatus.className = "photo-status";
+    return;
+  }
+  dom.photoStatus.hidden = false;
+  dom.photoStatusText.textContent = message;
+  dom.photoStatus.className = `photo-status is-${tone}`;
 }
 
 function readInputs() {
@@ -884,14 +956,18 @@ async function handlePhotoSubmit(event) {
   event.preventDefault();
   const files = Array.from(dom.photoInput.files || []);
   if (!files.length) {
+    setPhotoStatus("Najpierw wybierz zdjecie albo kilka zdjec.", "warn");
     setStatus("Wybierz przynajmniej jedno zdjecie.", "warn");
     return;
   }
 
   setStatus("Kompresuje i zapisuje zdjecia lokalnie...");
+  setPhotoStatus(`Przygotowuje ${photoCountLabel(files.length)} do zapisu...`, "working");
   try {
     const newPhotos = [];
-    for (const file of files) {
+    for (let index = 0; index < files.length; index += 1) {
+      const file = files[index];
+      setPhotoStatus(`Zapisuje ${index + 1}/${files.length}: ${file.name}`, "working");
       const dataUrl = await resizeImage(file, 1400, 0.82);
       newPhotos.push({
         id: crypto.randomUUID(),
@@ -907,11 +983,14 @@ async function handlePhotoSubmit(event) {
     state.photos = [...newPhotos, ...state.photos];
     saveStorage();
     dom.photoForm.reset();
+    resetPhotoPicker();
     dom.photoDateInput.valueAsDate = new Date();
     renderAlbum();
+    setPhotoStatus(`Zapisano ${photoCountLabel(newPhotos.length)} w albumie.`, "success");
     setStatus(`Dodano zdjecia: ${newPhotos.length}.`);
   } catch (error) {
     console.error(error);
+    setPhotoStatus("Nie udalo sie zapisac zdjec. Sprobuj mniejszy plik albo mniej zdjec naraz.", "warn");
     setStatus("Nie udalo sie zapisac zdjec. Mozliwe, ze pamiec przegladarki jest pelna.", "warn");
   }
 }
@@ -1036,6 +1115,7 @@ async function importData() {
     renderSpotMarkers();
     renderAlbum();
     setStatus("Import zakonczony.");
+    closeDrawer();
   } catch (error) {
     console.error(error);
     setStatus("Nie udalo sie zaimportowac pliku JSON.", "warn");
@@ -1153,6 +1233,18 @@ function directionText(degrees) {
 function formatMaybe(value, suffix) {
   const number = numberOrNull(value);
   return Number.isFinite(number) ? `${roundNumber(number)}${suffix}` : "brak danych";
+}
+
+function photoCountLabel(count) {
+  if (count === 1) return "1 zdjecie";
+  if (count > 1 && count < 5) return `${count} zdjecia`;
+  return `${count} zdjec`;
+}
+
+function formatFileSize(bytes) {
+  if (!Number.isFinite(bytes) || bytes <= 0) return "0 KB";
+  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  return `${roundNumber(bytes / 1024 / 1024)} MB`;
 }
 
 function roundNumber(value) {
