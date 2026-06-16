@@ -855,11 +855,20 @@ async function answerAssistant(question) {
       buildFischerContext(question, score, now, state.weather.daily, state.weather.hourly, waterTemp, localAnswer),
       endpoint
     );
+    if (isIncompleteFischerAnswer(aiAnswer)) {
+      throw new Error("Gemini zwrócił urwaną odpowiedź");
+    }
     dom.assistantAnswer.textContent = aiAnswer;
   } catch (error) {
     console.warn("Fischer AI nie odpowiedział", error);
     dom.assistantAnswer.textContent = `${localAnswer}\n\nFischer AI nie odpowiedział, więc pokazuję lokalną podpowiedź.`;
   }
+}
+
+function isIncompleteFischerAnswer(answer) {
+  const text = String(answer || "").trim();
+  if (text.length < 70) return true;
+  return /[\s,(;:]$/.test(text) || !/[.!?)]$/.test(text);
 }
 
 function getFischerAiEndpoint() {
