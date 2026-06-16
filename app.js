@@ -173,6 +173,7 @@ const state = {
   selected: { ...presets[0] },
   spots: [],
   photos: [],
+  bottomPoints: [],
   weather: null,
   water: null,
   map: null,
@@ -213,6 +214,15 @@ const dom = {
   spotSpeciesInput: document.querySelector("#spotSpeciesInput"),
   spotNotesInput: document.querySelector("#spotNotesInput"),
   spotList: document.querySelector("#spotList"),
+  depthForm: document.querySelector("#depthForm"),
+  depthValueInput: document.querySelector("#depthValueInput"),
+  bottomTypeInput: document.querySelector("#bottomTypeInput"),
+  structureInput: document.querySelector("#structureInput"),
+  depthDistanceInput: document.querySelector("#depthDistanceInput"),
+  depthNoteInput: document.querySelector("#depthNoteInput"),
+  bottomSummary: document.querySelector("#bottomSummary"),
+  bottomProfile: document.querySelector("#bottomProfile"),
+  bottomPointList: document.querySelector("#bottomPointList"),
   photoForm: document.querySelector("#photoForm"),
   fileDrop: document.querySelector("#fileDrop"),
   photoInput: document.querySelector("#photoInput"),
@@ -243,6 +253,7 @@ function init() {
   bindEvents();
   hydrateInputs();
   renderSpots();
+  renderBottomProfile();
   renderAlbum();
   renderWater(null);
   renderAssistantChat();
@@ -272,6 +283,7 @@ function loadStorage() {
     const saved = JSON.parse(raw);
     state.spots = Array.isArray(saved.spots) ? saved.spots : [];
     state.photos = Array.isArray(saved.photos) ? saved.photos : [];
+    state.bottomPoints = Array.isArray(saved.bottomPoints) ? saved.bottomPoints : [];
     if (Number.isFinite(Number(saved.selected?.lat)) && Number.isFinite(Number(saved.selected?.lon))) {
       state.selected = saved.selected;
     }
@@ -287,6 +299,7 @@ function saveStorage() {
       selected: state.selected,
       spots: state.spots,
       photos: state.photos,
+      bottomPoints: state.bottomPoints,
     })
   );
 }
@@ -364,6 +377,7 @@ function bindEvents() {
 
   dom.locateButton.addEventListener("click", locateUser);
   dom.spotForm.addEventListener("submit", handleSpotSubmit);
+  dom.depthForm?.addEventListener("submit", handleDepthSubmit);
   dom.assistantForm?.addEventListener("submit", handleAssistantSubmit);
   dom.assistantClearButton?.addEventListener("click", clearAssistantChat);
   document.querySelectorAll("[data-assistant-prompt]").forEach((button) => {
@@ -479,6 +493,7 @@ function selectLocation(location) {
   hydrateInputs();
   saveStorage();
   updateCurrentMarker();
+  renderBottomProfile();
 }
 
 async function locateUser() {
@@ -994,6 +1009,7 @@ function buildFischerContext(question, score, now, daily, hourly, waterTemp, loc
       moon: moonPhaseInfo(new Date(now.startTime || Date.now())),
     },
     bestWindows: bestFishingWindows(hourly, waterTemp, 5),
+    bottom: buildBottomContext(selectedBottomPoints(20)),
     conversation: state.assistantMessages
       .filter((message) => message.tone !== "thinking")
       .slice(-8)
@@ -1038,6 +1054,7 @@ function buildFishingAdvice(question, score, now, daily, hourly, waterTemp) {
   const fish = fishAdvice(now, waterTemp);
   const wind = `${formatMaybe(now.windSpeed, "km/h")} ${directionTextLong(now.windDirection)}`.trim();
   const moon = moonPhaseInfo(new Date(now.startTime || Date.now()));
+  const bottom = bottomAdviceText(selectedBottomPoints(12));
   const windowsText = windows.length
     ? windows.map((item) => `${item.time} (${item.score}/100)`).join(", ")
     : "brak mocnego okna w najbliższych godzinach";
@@ -1054,11 +1071,16 @@ function buildFishingAdvice(question, score, now, daily, hourly, waterTemp) {
   if (/wiatr|kierunek|poryw/.test(text)) {
     return `Wiatr teraz: ${wind || "brak danych"}, porywy ${formatMaybe(now.windGust, "km/h")}. W praktyce obławiaj nawietrzny brzeg, cofki, dopływy i miejsca, gdzie fala miesza wodę.`;
   }
+  if (/dno|glebok|głebok|glebokosc|głębokość|spad|kant|dol|doł|zaczep|roslinnosc|roślinność/.test(text)) {
+    return bottom
+      ? `${bottom} Zacznij od krawędzi spadu/kantu i zmieniaj głębokość co kilka rzutów.`
+      : "Nie mam jeszcze własnych punktów dna dla tego łowiska. Dodaj 2-3 pomiary głębokości, typ dna i strukturę, a wtedy podpowiem dokładniej.";
+  }
   if (/ksiezyc|slonce|uv|zmierzch|swit/.test(text)) {
     return `Słońce: ${formatClock(daily?.sunrise)}-${formatClock(daily?.sunset)}, dzień ${formatDuration(daily?.daylightDuration)}. Księżyc: ${moon.name}, ok. ${moon.illumination}% oświetlenia. Najciekawsze będą okolice świtu i zmierzchu.`;
   }
 
-  return `Podsumowanie Fischera: warunki ${score.value}/100. Najlepsze okna: ${windowsText}. Gdzie: ${places}. Na co: ${fish}. Przynęty: ${lures}. Wiatr ${wind || "brak danych"}, ciśnienie ${formatMaybe(now.pressure, "hPa")}.`;
+  return `Podsumowanie Fischera: warunki ${score.value}/100. Najlepsze okna: ${windowsText}. Gdzie: ${places}. Na co: ${fish}. Przynęty: ${lures}. Wiatr ${wind || "brak danych"}, ciśnienie ${formatMaybe(now.pressure, "hPa")}.${bottom ? ` ${bottom}` : ""}`;
 }
 
 function bestFishingWindows(periods, waterTemp, count) {
@@ -1346,6 +1368,155 @@ function handleSpotSubmit(event) {
   dom.spotTypeInput.value = "Jezioro";
 }
 
+function handleDepthSubmit(event) {
+  event.preventDefault();
+  const depth = Number(dom.depthValueInput?.value);
+  if (!Number.isFinite(depth) || depth <= 0) {
+    setStatus("Wpisz poprawną głębokość punktu dna.", "warn");
+    return;
+  }
+
+  const distanceM = Number(dom.depthDistanceInput?.value);
+  const point = {
+    id: window.crypto?.randomUUID ? window.crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+    lat: state.selected.lat,
+    lon: state.selected.lon,
+    spotId: state.selected.id || "",
+    spotName: state.selected.name || "Wybrane łowisko",
+    station: state.selected.station || "",
+    depthM: roundNumber(depth),
+    distanceM: Number.isFinite(distanceM) && distanceM >= 0 ? Math.round(distanceM) : null,
+    bottomType: dom.bottomTypeInput?.value || "nieznane",
+    structure: dom.structureInput?.value || "blat",
+    note: dom.depthNoteInput?.value?.trim() || "",
+    createdAt: new Date().toISOString(),
+  };
+
+  state.bottomPoints.unshift(point);
+  saveStorage();
+  renderBottomProfile();
+  dom.depthForm.reset();
+  if (dom.bottomTypeInput) dom.bottomTypeInput.value = "nieznane";
+  if (dom.structureInput) dom.structureInput.value = "blat";
+  setStatus(`Dodano punkt dna: ${point.depthM} m, ${point.structure}.`);
+}
+
+function renderBottomProfile() {
+  if (!dom.bottomPointList || !dom.bottomProfile || !dom.bottomSummary) return;
+  const points = selectedBottomPoints(30);
+  if (!points.length) {
+    dom.bottomSummary.innerHTML =
+      '<div class="empty-state">Dodaj własne pomiary głębokości dla tego łowiska. Fischer użyje ich przy podpowiedziach o spadach, kantach i miejscówkach.</div>';
+    dom.bottomProfile.innerHTML = "";
+    dom.bottomPointList.innerHTML = "";
+    return;
+  }
+
+  dom.bottomSummary.textContent = bottomAdviceText(points);
+  const maxDepth = Math.max(...points.map((point) => point.depthM), 1);
+  dom.bottomProfile.innerHTML = points
+    .slice()
+    .sort((a, b) => bottomSortValue(a) - bottomSortValue(b))
+    .map((point) => {
+      const height = clamp(Math.round((point.depthM / maxDepth) * 100), 14, 100);
+      return `
+        <div class="bottom-bar" title="${escapeHtml(bottomPointTitle(point))}">
+          <div class="bottom-bar-fill" style="--h:${height}%"></div>
+          <strong>${formatMaybe(point.depthM, "m")}</strong>
+          <small>${escapeHtml(distanceLabel(point))}</small>
+        </div>
+      `;
+    })
+    .join("");
+
+  dom.bottomPointList.innerHTML = points
+    .map(
+      (point) => `
+        <article class="bottom-point">
+          <div>
+            <strong>${formatMaybe(point.depthM, "m")} · ${escapeHtml(point.structure)} · ${escapeHtml(point.bottomType)}</strong>
+            <small>${escapeHtml(distanceLabel(point))}${point.note ? ` · ${escapeHtml(point.note)}` : ""}</small>
+          </div>
+          <button class="tiny-button" type="button" title="Usuń punkt dna" data-depth-id="${point.id}">
+            <i data-lucide="x"></i>
+          </button>
+        </article>
+      `
+    )
+    .join("");
+  dom.bottomPointList.querySelectorAll("[data-depth-id]").forEach((button) => {
+    button.addEventListener("click", () => deleteDepthPoint(button.dataset.depthId));
+  });
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function deleteDepthPoint(id) {
+  state.bottomPoints = state.bottomPoints.filter((point) => point.id !== id);
+  saveStorage();
+  renderBottomProfile();
+}
+
+function selectedBottomPoints(limit = 20) {
+  if (!Array.isArray(state.bottomPoints)) return [];
+  return state.bottomPoints
+    .map((point) => ({
+      ...point,
+      distanceToSelectedKm: haversineKm(state.selected.lat, state.selected.lon, point.lat, point.lon),
+    }))
+    .filter((point) => {
+      if (state.selected.id && point.spotId === state.selected.id) return true;
+      return Number.isFinite(point.distanceToSelectedKm) && point.distanceToSelectedKm <= 1.5;
+    })
+    .sort((a, b) => {
+      const bySpot = Number(Boolean(b.spotId && b.spotId === state.selected.id)) - Number(Boolean(a.spotId && a.spotId === state.selected.id));
+      if (bySpot) return bySpot;
+      return bottomSortValue(a) - bottomSortValue(b);
+    })
+    .slice(0, limit);
+}
+
+function bottomSortValue(point) {
+  return Number.isFinite(point.distanceM) ? point.distanceM : new Date(point.createdAt || 0).getTime();
+}
+
+function bottomPointTitle(point) {
+  return `${formatMaybe(point.depthM, "m")} · ${point.structure} · ${point.bottomType}${point.note ? ` · ${point.note}` : ""}`;
+}
+
+function distanceLabel(point) {
+  if (Number.isFinite(point.distanceM)) return `${point.distanceM} m od brzegu`;
+  if (Number.isFinite(point.distanceToSelectedKm)) return `${roundNumber(point.distanceToSelectedKm * 1000)} m od punktu`;
+  return "bez dystansu";
+}
+
+function bottomAdviceText(points) {
+  if (!points.length) return "";
+  const depths = points.map((point) => point.depthM).filter(Number.isFinite);
+  const min = Math.min(...depths);
+  const max = Math.max(...depths);
+  const structures = uniqueText(points.map((point) => point.structure)).slice(0, 4).join(", ");
+  const bottoms = uniqueText(points.map((point) => point.bottomType).filter((item) => item && item !== "nieznane")).slice(0, 3).join(", ");
+  const key = points.find((point) => /spad|kant|dołek|górka|zaczep|trzciny/i.test(point.structure)) || points[0];
+  return `Szkic dna: ${points.length} pkt, zakres ${roundNumber(min)}-${roundNumber(max)} m. Struktury: ${structures || "brak"}. ${bottoms ? `Dno: ${bottoms}. ` : ""}Najciekawszy punkt: ${formatMaybe(key.depthM, "m")} ${key.structure}${key.note ? ` (${key.note})` : ""}.`;
+}
+
+function buildBottomContext(points) {
+  return {
+    summary: bottomAdviceText(points),
+    points: points.slice(0, 12).map((point) => ({
+      depthM: point.depthM,
+      distanceM: point.distanceM,
+      bottomType: point.bottomType,
+      structure: point.structure,
+      note: point.note,
+    })),
+  };
+}
+
+function uniqueText(items) {
+  return [...new Set(items.map((item) => String(item || "").trim()).filter(Boolean))];
+}
+
 function renderSpots() {
   syncPhotoSpotSelect();
   if (!state.spots.length) {
@@ -1398,9 +1569,13 @@ function deleteSpot(id) {
   state.photos = state.photos.map((photo) =>
     photo.spotId === id ? { ...photo, spotId: "" } : photo
   );
+  state.bottomPoints = state.bottomPoints.map((point) =>
+    point.spotId === id ? { ...point, spotId: "" } : point
+  );
   saveStorage();
   renderSpots();
   renderSpotMarkers();
+  renderBottomProfile();
   renderAlbum();
 }
 
@@ -1535,6 +1710,7 @@ function exportData() {
           selected: state.selected,
           spots: state.spots,
           photos: state.photos,
+          bottomPoints: state.bottomPoints,
         },
         null,
         2
@@ -1557,6 +1733,7 @@ async function importData() {
     const data = JSON.parse(await file.text());
     state.spots = Array.isArray(data.spots) ? data.spots : [];
     state.photos = Array.isArray(data.photos) ? data.photos : [];
+    state.bottomPoints = Array.isArray(data.bottomPoints) ? data.bottomPoints : [];
     if (Number.isFinite(Number(data.selected?.lat)) && Number.isFinite(Number(data.selected?.lon))) {
       state.selected = data.selected;
       hydrateInputs();
@@ -1565,6 +1742,7 @@ async function importData() {
     saveStorage();
     renderSpots();
     renderSpotMarkers();
+    renderBottomProfile();
     renderAlbum();
     setStatus("Import zakończony.");
     closeDrawer();

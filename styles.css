@@ -369,6 +369,7 @@ body.drawer-open {
 
 .panel,
 .spot-editor,
+.bottom-section,
 .album-section,
 .settings-section,
 .map-section {
@@ -382,6 +383,7 @@ body.drawer-open {
 
 .panel,
 .spot-editor,
+.bottom-section,
 .album-section,
 .settings-section {
   padding: 18px;
@@ -389,6 +391,7 @@ body.drawer-open {
 
 .panel,
 .spot-editor,
+.bottom-section,
 .album-section,
 .settings-section,
 .map-section,
@@ -401,6 +404,7 @@ body.drawer-open {
 
 .panel:hover,
 .spot-editor:hover,
+.bottom-section:hover,
 .album-section:hover,
 .settings-section:hover,
 .map-section:hover {
@@ -777,6 +781,114 @@ body.drawer-open {
   display: grid;
   gap: 10px;
   margin-top: 14px;
+}
+
+.bottom-section {
+  min-width: 0;
+}
+
+.depth-form {
+  display: grid;
+  grid-template-columns: 0.7fr 1fr 1fr 0.8fr;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.depth-form .wide {
+  grid-column: 1 / -2;
+}
+
+.depth-form button {
+  min-height: 44px;
+  align-self: end;
+}
+
+.bottom-summary {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 1px solid rgba(8, 124, 189, 0.16);
+  border-radius: 8px;
+  color: #173342;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(238, 249, 251, 0.78));
+  line-height: 1.45;
+}
+
+.bottom-summary:empty {
+  display: none;
+}
+
+.bottom-profile {
+  display: flex;
+  align-items: end;
+  gap: 8px;
+  min-height: 150px;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(239, 249, 251, 0.78) 0%, rgba(218, 235, 237, 0.9) 100%);
+  overflow-x: auto;
+}
+
+.bottom-profile:empty {
+  display: none;
+}
+
+.bottom-bar {
+  position: relative;
+  display: grid;
+  align-content: end;
+  justify-items: center;
+  min-width: 54px;
+  height: 112px;
+}
+
+.bottom-bar-fill {
+  width: 100%;
+  height: var(--h);
+  min-height: 12px;
+  border-radius: 8px 8px 3px 3px;
+  background: linear-gradient(180deg, #1498e1, #0b6179);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.bottom-bar strong {
+  margin-top: 6px;
+  font-size: 0.8rem;
+}
+
+.bottom-bar small {
+  color: var(--muted);
+  font-size: 0.68rem;
+  text-align: center;
+}
+
+.bottom-point-list {
+  display: grid;
+  gap: 9px;
+  margin-top: 12px;
+}
+
+.bottom-point {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 11px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.bottom-point strong {
+  display: block;
+}
+
+.bottom-point small {
+  color: var(--muted);
+  line-height: 1.35;
 }
 
 .hour-card,
@@ -1424,13 +1536,19 @@ body.drawer-open {
 @media (max-width: 1180px) {
   .control-strip,
   .workspace,
+  .depth-form,
   .photo-form {
     grid-template-columns: 1fr 1fr;
   }
 
   .control-strip .primary-button,
+  .depth-form .primary-button,
   .photo-form .primary-button {
     width: 100%;
+  }
+
+  .depth-form .wide {
+    grid-column: 1 / -1;
   }
 
   .map {
@@ -1467,8 +1585,13 @@ body.drawer-open {
   .detail-grid,
   .assistant-form,
   .spot-form,
+  .depth-form,
   .photo-form {
     grid-template-columns: 1fr;
+  }
+
+  .depth-form .wide {
+    grid-column: auto;
   }
 
   .workspace {

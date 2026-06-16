@@ -272,6 +272,60 @@
             </form>
             <div class="spot-list" id="spotList"></div>
           </section>
+
+          <section class="bottom-section" aria-labelledby="bottomHeading">
+            <div class="panel-title-row">
+              <div>
+                <p class="eyebrow">Szkic dna</p>
+                <h2 id="bottomHeading">Głębokości i struktura</h2>
+              </div>
+            </div>
+            <form id="depthForm" class="depth-form">
+              <label class="field">
+                <span>Głębokość</span>
+                <input id="depthValueInput" type="number" min="0.1" step="0.1" inputmode="decimal" placeholder="np. 3.5" required />
+              </label>
+              <label class="field">
+                <span>Typ dna</span>
+                <select id="bottomTypeInput">
+                  <option>nieznane</option>
+                  <option>muł</option>
+                  <option>piasek</option>
+                  <option>żwir</option>
+                  <option>kamienie</option>
+                  <option>roślinność</option>
+                  <option>twarde dno</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Struktura</span>
+                <select id="structureInput">
+                  <option>blat</option>
+                  <option>spad</option>
+                  <option>kant</option>
+                  <option>dołek</option>
+                  <option>górka</option>
+                  <option>zaczep</option>
+                  <option>trzciny</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Od brzegu</span>
+                <input id="depthDistanceInput" type="number" min="0" step="1" inputmode="numeric" placeholder="metry" />
+              </label>
+              <label class="field wide">
+                <span>Notatka</span>
+                <input id="depthNoteInput" type="text" placeholder="np. twardy kant, zaczepy, pas roślin" />
+              </label>
+              <button class="primary-button" type="submit">
+                <i data-lucide="waves"></i>
+                <span>Dodaj punkt dna</span>
+              </button>
+            </form>
+            <div class="bottom-summary" id="bottomSummary"></div>
+            <div class="bottom-profile" id="bottomProfile"></div>
+            <div class="bottom-point-list" id="bottomPointList"></div>
+          </section>
         </div>
       </section>
 
