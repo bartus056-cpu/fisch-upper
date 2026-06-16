@@ -178,6 +178,7 @@ const state = {
   map: null,
   currentMarker: null,
   spotLayer: null,
+  assistantMessages: [],
 };
 
 const dom = {
@@ -197,9 +198,11 @@ const dom = {
   metricGrid: document.querySelector("#metricGrid"),
   detailGrid: document.querySelector("#detailGrid"),
   assistantSummary: document.querySelector("#assistantSummary"),
+  assistantChat: document.querySelector("#assistantChat"),
   assistantForm: document.querySelector("#assistantForm"),
   assistantQuestion: document.querySelector("#assistantQuestion"),
   assistantAnswer: document.querySelector("#assistantAnswer"),
+  assistantClearButton: document.querySelector("#assistantClearButton"),
   hourlyList: document.querySelector("#hourlyList"),
   marineList: document.querySelector("#marineList"),
   map: document.querySelector("#map"),
@@ -242,6 +245,7 @@ function init() {
   renderSpots();
   renderAlbum();
   renderWater(null);
+  renderAssistantChat();
   loadWeather();
   if (window.lucide) window.lucide.createIcons();
   hideBootWarning();
@@ -361,6 +365,7 @@ function bindEvents() {
   dom.locateButton.addEventListener("click", locateUser);
   dom.spotForm.addEventListener("submit", handleSpotSubmit);
   dom.assistantForm?.addEventListener("submit", handleAssistantSubmit);
+  dom.assistantClearButton?.addEventListener("click", clearAssistantChat);
   document.querySelectorAll("[data-assistant-prompt]").forEach((button) => {
     button.addEventListener("click", () => answerAssistant(button.dataset.assistantPrompt || ""));
   });
@@ -817,11 +822,18 @@ function handleAssistantSubmit(event) {
 }
 
 async function answerAssistant(question) {
+  const userQuestion = String(question || "").trim() || "Podsumuj warunki i doradź, jak łowić.";
   if (!dom.assistantAnswer) return;
+  addAssistantMessage("user", userQuestion);
+  if (dom.assistantQuestion) dom.assistantQuestion.value = "";
+
   if (!state.weather?.current || !state.weather?.hourly?.length) {
-    dom.assistantAnswer.textContent = "Najpierw pobierz pogodę dla łowiska. Wtedy odpowiem na bazie aktualnych danych.";
+    const message = "Najpierw pobierz pogodę dla łowiska. Wtedy odpowiem na bazie aktualnych danych.";
+    addAssistantMessage("assistant", message, "warn");
+    dom.assistantAnswer.textContent = message;
     return;
   }
+
   const now = state.weather.current;
   const waterTemp = hydroWaterTemp(state.water?.hydro);
   const score = scoreFishingHour({
@@ -834,7 +846,7 @@ async function answerAssistant(question) {
     shortForecast: now.shortForecast,
   });
   const localAnswer = buildFishingAdvice(
-    question,
+    userQuestion,
     score,
     now,
     state.weather.daily,
@@ -844,30 +856,100 @@ async function answerAssistant(question) {
 
   const endpoint = getFischerAiEndpoint();
   if (!endpoint) {
+    addAssistantMessage("assistant", localAnswer);
     dom.assistantAnswer.textContent = localAnswer;
     return;
   }
 
-  dom.assistantAnswer.textContent = "Fischer AI sprawdza dane i układa odpowiedź...";
+  const pendingId = addAssistantMessage("assistant", "Fischer sprawdza pogodę, łowisko i poprzednie pytania...", "thinking");
+  dom.assistantAnswer.textContent = "";
+  setAssistantBusy(true);
   try {
     const aiAnswer = await fetchFischerAi(
-      question || "Podsumuj warunki i doradź, jak łowić.",
-      buildFischerContext(question, score, now, state.weather.daily, state.weather.hourly, waterTemp, localAnswer),
+      userQuestion,
+      buildFischerContext(userQuestion, score, now, state.weather.daily, state.weather.hourly, waterTemp, localAnswer),
       endpoint
     );
     if (isIncompleteFischerAnswer(aiAnswer)) {
       throw new Error("Gemini zwrócił urwaną odpowiedź");
     }
+    updateAssistantMessage(pendingId, aiAnswer);
     dom.assistantAnswer.textContent = aiAnswer;
   } catch (error) {
     console.warn("Fischer AI nie odpowiedział", error);
-    dom.assistantAnswer.textContent = `${localAnswer}\n\nFischer AI nie odpowiedział, więc pokazuję lokalną podpowiedź.`;
+    const fallback = `${localAnswer}\n\nGemini tym razem nie odpowiedziało poprawnie, więc Fischer pokazuje lokalną podpowiedź.`;
+    updateAssistantMessage(pendingId, fallback, "warn");
+    dom.assistantAnswer.textContent = fallback;
+  } finally {
+    setAssistantBusy(false);
   }
+}
+
+function addAssistantMessage(role, text, tone = "normal") {
+  const message = {
+    id: window.crypto?.randomUUID ? window.crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+    role,
+    text: String(text || "").trim(),
+    tone,
+    createdAt: new Date().toISOString(),
+  };
+  state.assistantMessages.push(message);
+  if (state.assistantMessages.length > 14) {
+    state.assistantMessages = state.assistantMessages.slice(-14);
+  }
+  renderAssistantChat();
+  return message.id;
+}
+
+function updateAssistantMessage(id, text, tone = "normal") {
+  const message = state.assistantMessages.find((item) => item.id === id);
+  if (!message) return;
+  message.text = String(text || "").trim();
+  message.tone = tone;
+  renderAssistantChat();
+}
+
+function renderAssistantChat() {
+  if (!dom.assistantChat) return;
+  if (!state.assistantMessages.length) {
+    dom.assistantChat.innerHTML =
+      '<div class="assistant-empty">Zapytaj Fischera o godzinę, miejsce, przynętę albo kolejny krok. Rozmowa zostanie tutaj, więc możesz dopytywać dalej.</div>';
+    return;
+  }
+
+  dom.assistantChat.innerHTML = state.assistantMessages
+    .map(
+      (message) => `
+        <div class="assistant-message is-${message.role} ${assistantToneClass(message.tone)}">
+          ${escapeHtml(message.text)}
+        </div>
+      `
+    )
+    .join("");
+  dom.assistantChat.scrollTop = dom.assistantChat.scrollHeight;
+}
+
+function assistantToneClass(tone) {
+  if (tone === "thinking") return "is-thinking";
+  if (tone === "warn") return "is-warn";
+  return "";
+}
+
+function clearAssistantChat() {
+  state.assistantMessages = [];
+  if (dom.assistantAnswer) dom.assistantAnswer.textContent = "";
+  renderAssistantChat();
+}
+
+function setAssistantBusy(isBusy) {
+  if (dom.assistantQuestion) dom.assistantQuestion.disabled = isBusy;
+  const submitButton = dom.assistantForm?.querySelector('button[type="submit"]');
+  if (submitButton) submitButton.disabled = isBusy;
 }
 
 function isIncompleteFischerAnswer(answer) {
   const text = String(answer || "").trim();
-  if (text.length < 70) return true;
+  if (text.length < 45) return true;
   return /[\s,(;:]$/.test(text) || !/[.!?)]$/.test(text);
 }
 
@@ -911,6 +993,13 @@ function buildFischerContext(question, score, now, daily, hourly, waterTemp, loc
       moon: moonPhaseInfo(new Date(now.startTime || Date.now())),
     },
     bestWindows: bestFishingWindows(hourly, waterTemp, 5),
+    conversation: state.assistantMessages
+      .filter((message) => message.tone !== "thinking")
+      .slice(-8)
+      .map((message) => ({
+        role: message.role,
+        text: message.text,
+      })),
     savedSpots: state.spots.slice(0, 8).map((spot) => ({
       name: spot.name,
       type: spot.type,

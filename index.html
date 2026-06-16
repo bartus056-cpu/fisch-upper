@@ -166,6 +166,7 @@
                 <div class="assistant-summary" id="assistantSummary">
                   Po pobraniu pogody Fischer podpowie, gdzie, kiedy i na co warto łowić.
                 </div>
+                <div class="assistant-chat" id="assistantChat" aria-live="polite" aria-label="Rozmowa z Fischerem"></div>
                 <div class="assistant-prompts" aria-label="Szybkie pytania">
                   <button type="button" data-assistant-prompt="kiedy">Kiedy najlepiej?</button>
                   <button type="button" data-assistant-prompt="gdzie">Gdzie szukać?</button>
@@ -173,12 +174,13 @@
                 </div>
                 <form class="assistant-form" id="assistantForm">
                   <input id="assistantQuestion" type="text" placeholder="Zapytaj np. na co łowić teraz?" />
+                  <button class="assistant-clear-button" id="assistantClearButton" type="button">Wyczyść</button>
                   <button class="primary-button" type="submit">
                     <i data-lucide="send"></i>
                     <span>Zapytaj</span>
                   </button>
                 </form>
-                <div class="assistant-answer" id="assistantAnswer" aria-live="polite"></div>
+                <div class="assistant-answer" id="assistantAnswer" hidden></div>
               </div>
             </details>
           </section>
