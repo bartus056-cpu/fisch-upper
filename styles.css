@@ -502,6 +502,12 @@ body.drawer-open {
   background: rgba(255, 255, 255, 0.68);
 }
 
+.fishing-assistant {
+  background:
+    linear-gradient(135deg, rgba(8, 124, 189, 0.08), rgba(107, 125, 30, 0.06)),
+    rgba(255, 255, 255, 0.76);
+}
+
 .fishing-details summary,
 .fishing-assistant summary {
   display: flex;
@@ -521,17 +527,50 @@ body.drawer-open {
   display: none;
 }
 
-.fishing-details summary svg,
-.fishing-assistant summary svg {
+.fishing-details summary > svg,
+.fishing-assistant summary > svg {
   width: 18px;
   height: 18px;
   color: var(--water-dark);
   transition: transform 160ms ease;
 }
 
-.fishing-details[open] summary svg,
-.fishing-assistant[open] summary svg {
+.fishing-details[open] summary > svg,
+.fishing-assistant[open] summary > svg {
   transform: rotate(180deg);
+}
+
+.assistant-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.assistant-title > svg {
+  width: 22px;
+  height: 22px;
+  padding: 3px;
+  border-radius: 8px;
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--water), var(--deep));
+  box-shadow: 0 8px 18px rgba(8, 124, 189, 0.18);
+}
+
+.assistant-title span {
+  display: grid;
+  gap: 1px;
+}
+
+.assistant-title strong {
+  font-size: 1rem;
+  line-height: 1.1;
+}
+
+.assistant-title small {
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 750;
 }
 
 .detail-grid {
@@ -590,29 +629,44 @@ body.drawer-open {
   line-height: 1.45;
 }
 
+.assistant-summary {
+  border-color: rgba(8, 124, 189, 0.18);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(238, 249, 251, 0.78));
+}
+
 .assistant-chat {
   display: grid;
   gap: 9px;
   max-height: 340px;
   overflow: auto;
-  padding: 10px;
-  border: 1px solid var(--line);
+  padding: 12px;
+  border: 1px solid rgba(8, 124, 189, 0.16);
   border-radius: 8px;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(244, 251, 252, 0.78));
+    linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(242, 249, 250, 0.88)),
+    radial-gradient(circle at top left, rgba(8, 124, 189, 0.09), transparent 34%);
   scroll-behavior: smooth;
 }
 
 .assistant-empty {
+  display: grid;
+  gap: 4px;
   padding: 10px 8px;
   color: var(--muted);
   line-height: 1.45;
 }
 
+.assistant-empty strong {
+  color: #173342;
+}
+
 .assistant-message {
   width: fit-content;
   max-width: min(86%, 620px);
-  padding: 10px 12px;
+  display: grid;
+  gap: 4px;
+  padding: 9px 12px 10px;
   border-radius: 8px;
   line-height: 1.45;
   white-space: pre-wrap;
@@ -620,17 +674,27 @@ body.drawer-open {
   box-shadow: 0 8px 18px rgba(16, 33, 43, 0.05);
 }
 
+.assistant-message-label {
+  font-size: 0.68rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0;
+  opacity: 0.72;
+  text-transform: uppercase;
+}
+
 .assistant-message.is-user {
   justify-self: end;
   color: #ffffff;
-  background: linear-gradient(135deg, var(--deep), var(--water-dark));
+  background: linear-gradient(135deg, var(--deep), #0b6179);
 }
 
 .assistant-message.is-assistant {
   justify-self: start;
-  border: 1px solid var(--line);
+  border: 1px solid rgba(8, 124, 189, 0.18);
+  border-left: 4px solid var(--water);
   color: #173342;
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.94);
 }
 
 .assistant-message.is-thinking {
@@ -656,10 +720,10 @@ body.drawer-open {
 .assistant-prompts button {
   min-height: 36px;
   padding: 0 12px;
-  border: 1px solid var(--line);
+  border: 1px solid rgba(8, 124, 189, 0.18);
   border-radius: 8px;
   color: var(--ink);
-  background: rgba(255, 255, 255, 0.78);
+  background: rgba(255, 255, 255, 0.82);
   font-weight: 800;
 }
 
@@ -678,11 +742,17 @@ body.drawer-open {
   width: 100%;
   min-width: 0;
   min-height: 44px;
-  border: 1px solid var(--line-strong);
+  border: 1px solid rgba(8, 124, 189, 0.3);
   border-radius: 8px;
   padding: 10px 12px;
   color: var(--ink);
   background: rgba(255, 255, 255, 0.94);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.assistant-form input:focus {
+  border-color: var(--water);
+  outline: 3px solid rgba(8, 124, 189, 0.14);
 }
 
 .assistant-clear-button {

@@ -913,7 +913,7 @@ function renderAssistantChat() {
   if (!dom.assistantChat) return;
   if (!state.assistantMessages.length) {
     dom.assistantChat.innerHTML =
-      '<div class="assistant-empty">Zapytaj Fischera o godzinę, miejsce, przynętę albo kolejny krok. Rozmowa zostanie tutaj, więc możesz dopytywać dalej.</div>';
+      '<div class="assistant-empty"><strong>Fischer jest gotowy.</strong><span>Możesz pytać o miejsce, godzinę, przynętę albo doprecyzować poprzednią odpowiedź.</span></div>';
     return;
   }
 
@@ -921,7 +921,8 @@ function renderAssistantChat() {
     .map(
       (message) => `
         <div class="assistant-message is-${message.role} ${assistantToneClass(message.tone)}">
-          ${escapeHtml(message.text)}
+          <span class="assistant-message-label">${message.role === "user" ? "Ty" : "Fischer"}</span>
+          <span>${escapeHtml(message.text)}</span>
         </div>
       `
     )
