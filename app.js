@@ -169,10 +169,87 @@ const weatherCodeText = {
   99: "Silna burza z gradem",
 };
 
+const defaultBaits = [
+  {
+    id: "default-wafters-scopex",
+    name: "Wafters scopex / wanilia",
+    category: "wafters",
+    flavor: "słodki",
+    color: "żółty / biały",
+    use: "method feeder, karp, leszcz, spokojna albo lekko falująca woda",
+  },
+  {
+    id: "default-wafters-czosnek",
+    name: "Wafters czosnek / przyprawa",
+    category: "wafters",
+    flavor: "ostry",
+    color: "pomarańczowy",
+    use: "chłodniejsza woda, słabsze brania, punktowe nęcenie",
+  },
+  {
+    id: "default-pellet-halibut",
+    name: "Pellet halibut / ryba",
+    category: "pellet",
+    flavor: "rybny",
+    color: "ciemny",
+    use: "karp, amur, leszcz, cieplejsza woda i stabilne ciśnienie",
+  },
+  {
+    id: "default-corn-honey",
+    name: "Kukurydza miód",
+    category: "inne",
+    flavor: "miód",
+    color: "żółty",
+    use: "lin, karaś, karp, płytkie blaty i okolice roślin",
+  },
+  {
+    id: "default-red-worms",
+    name: "Czerwone robaki",
+    category: "robaki",
+    flavor: "naturalny",
+    color: "naturalny",
+    use: "po deszczu, przy dopływach, na białą rybę i okonia",
+  },
+  {
+    id: "default-natural-gum",
+    name: "Guma naturalna 7 cm",
+    category: "guma",
+    flavor: "brak",
+    color: "naturalny",
+    use: "okoń, sandacz, czystsza woda, wolne prowadzenie przy dnie",
+  },
+  {
+    id: "default-bright-gum",
+    name: "Guma jaskrawa 8 cm",
+    category: "guma",
+    flavor: "brak",
+    color: "chartreuse",
+    use: "mętna woda, opad, słabsza widoczność, szybkie sprawdzanie miejsc",
+  },
+  {
+    id: "default-sweet-groundbait",
+    name: "Zanęta feeder słodka",
+    category: "zanęta",
+    flavor: "słodki",
+    color: "jasny",
+    use: "ciepłe dni, leszcz, karp, regularne donęcanie małymi porcjami",
+  },
+  {
+    id: "default-fish-groundbait",
+    name: "Zanęta rybna / pelletowa",
+    category: "zanęta",
+    flavor: "rybny",
+    color: "ciemny",
+    use: "zimniejsza woda, większa ryba, ostrożne nęcenie",
+  },
+];
+
 const state = {
   selected: { ...presets[0] },
   spots: [],
   photos: [],
+  trips: [],
+  baits: [],
   bottomPoints: [],
   weather: null,
   water: null,
@@ -192,6 +269,12 @@ const dom = {
   loadWeatherButton: document.querySelector("#loadWeatherButton"),
   refreshButton: document.querySelector("#refreshButton"),
   focusMapButton: document.querySelector("#focusMapButton"),
+  planSpotSelect: document.querySelector("#planSpotSelect"),
+  planDateInput: document.querySelector("#planDateInput"),
+  planSpeciesInput: document.querySelector("#planSpeciesInput"),
+  todayPlanButton: document.querySelector("#todayPlanButton"),
+  buildPlanButton: document.querySelector("#buildPlanButton"),
+  planOutput: document.querySelector("#planOutput"),
   scoreRing: document.querySelector("#scoreRing"),
   scoreValue: document.querySelector("#scoreValue"),
   statusLine: document.querySelector("#statusLine"),
@@ -223,14 +306,26 @@ const dom = {
   bottomSummary: document.querySelector("#bottomSummary"),
   bottomProfile: document.querySelector("#bottomProfile"),
   bottomPointList: document.querySelector("#bottomPointList"),
+  baitForm: document.querySelector("#baitForm"),
+  baitNameInput: document.querySelector("#baitNameInput"),
+  baitCategoryInput: document.querySelector("#baitCategoryInput"),
+  baitFlavorInput: document.querySelector("#baitFlavorInput"),
+  baitColorInput: document.querySelector("#baitColorInput"),
+  baitUseInput: document.querySelector("#baitUseInput"),
+  baitList: document.querySelector("#baitList"),
   photoForm: document.querySelector("#photoForm"),
   fileDrop: document.querySelector("#fileDrop"),
   photoInput: document.querySelector("#photoInput"),
   photoDropTitle: document.querySelector("#photoDropTitle"),
   photoDropMeta: document.querySelector("#photoDropMeta"),
   photoSpotSelect: document.querySelector("#photoSpotSelect"),
+  tripTitleInput: document.querySelector("#tripTitleInput"),
+  tripResultInput: document.querySelector("#tripResultInput"),
   photoSpeciesInput: document.querySelector("#photoSpeciesInput"),
   photoDateInput: document.querySelector("#photoDateInput"),
+  tripDepthInput: document.querySelector("#tripDepthInput"),
+  tripBaitSelect: document.querySelector("#tripBaitSelect"),
+  tripLureSelect: document.querySelector("#tripLureSelect"),
   photoNoteInput: document.querySelector("#photoNoteInput"),
   photoStatus: document.querySelector("#photoStatus"),
   photoStatusText: document.querySelector("#photoStatusText"),
@@ -253,6 +348,8 @@ function init() {
   bindEvents();
   hydrateInputs();
   renderSpots();
+  renderBaits();
+  renderPlanOutput();
   renderBottomProfile();
   renderAlbum();
   renderWater(null);
@@ -283,6 +380,8 @@ function loadStorage() {
     const saved = JSON.parse(raw);
     state.spots = Array.isArray(saved.spots) ? saved.spots : [];
     state.photos = Array.isArray(saved.photos) ? saved.photos : [];
+    state.trips = Array.isArray(saved.trips) ? saved.trips : [];
+    state.baits = Array.isArray(saved.baits) ? saved.baits : [];
     state.bottomPoints = Array.isArray(saved.bottomPoints) ? saved.bottomPoints : [];
     if (Number.isFinite(Number(saved.selected?.lat)) && Number.isFinite(Number(saved.selected?.lon))) {
       state.selected = saved.selected;
@@ -299,6 +398,8 @@ function saveStorage() {
       selected: state.selected,
       spots: state.spots,
       photos: state.photos,
+      trips: state.trips,
+      baits: state.baits,
       bottomPoints: state.bottomPoints,
     })
   );
@@ -378,6 +479,9 @@ function bindEvents() {
   dom.locateButton.addEventListener("click", locateUser);
   dom.spotForm.addEventListener("submit", handleSpotSubmit);
   dom.depthForm?.addEventListener("submit", handleDepthSubmit);
+  dom.baitForm?.addEventListener("submit", handleBaitSubmit);
+  dom.todayPlanButton?.addEventListener("click", () => renderFishingPlan("today"));
+  dom.buildPlanButton?.addEventListener("click", () => renderFishingPlan("planned"));
   dom.assistantForm?.addEventListener("submit", handleAssistantSubmit);
   dom.assistantClearButton?.addEventListener("click", clearAssistantChat);
   document.querySelectorAll("[data-assistant-prompt]").forEach((button) => {
@@ -427,6 +531,7 @@ function hydrateInputs() {
   dom.lonInput.value = state.selected.lon;
   dom.stationInput.value = state.selected.station || "";
   dom.photoDateInput.valueAsDate = new Date();
+  if (dom.planDateInput) dom.planDateInput.valueAsDate = new Date();
 }
 
 function handlePhotoSelection() {
@@ -443,12 +548,12 @@ function handlePhotoSelection() {
     dom.photoDropTitle.textContent = files.length === 1 ? files[0].name : `${photoCountLabel(files.length)} wybrane`;
   }
   if (dom.photoDropMeta) dom.photoDropMeta.textContent = `${formatFileSize(totalBytes)} gotowe do zapisu`;
-  setPhotoStatus(`Wybrano ${photoCountLabel(files.length)}. Kliknij „Zapisz zdjęcia”.`, "working");
+  setPhotoStatus(`Wybrano ${photoCountLabel(files.length)}. Kliknij „Zapisz wyprawę”.`, "working");
 }
 
 function resetPhotoPicker() {
   dom.fileDrop?.classList.remove("has-files");
-  if (dom.photoDropTitle) dom.photoDropTitle.textContent = "Dodaj zdjęcia";
+  if (dom.photoDropTitle) dom.photoDropTitle.textContent = "Dodaj zdjęcia z wyprawy";
   if (dom.photoDropMeta) dom.photoDropMeta.textContent = "JPG, PNG, WebP";
 }
 
@@ -494,6 +599,7 @@ function selectLocation(location) {
   saveStorage();
   updateCurrentMarker();
   renderBottomProfile();
+  renderPlanOutput();
 }
 
 async function locateUser() {
@@ -549,6 +655,7 @@ async function loadWeather() {
     hydrateInputs();
     renderWeather();
     renderWater(state.water);
+    renderPlanOutput();
     saveStorage();
     setStatus(`Dane odswiezone: ${new Date().toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" })}`);
   } catch (error) {
@@ -708,7 +815,7 @@ function openMeteoHourlyPeriods(forecast) {
       shortForecast: weatherDescription(hourly.weather_code?.[index]),
     }))
     .filter((period) => new Date(period.startTime).getTime() >= now)
-    .slice(0, 24);
+    .slice(0, 72);
 }
 
 function renderWeather() {
@@ -1010,6 +1117,28 @@ function buildFischerContext(question, score, now, daily, hourly, waterTemp, loc
     },
     bestWindows: bestFishingWindows(hourly, waterTemp, 5),
     bottom: buildBottomContext(selectedBottomPoints(20)),
+    baits: allBaits()
+      .slice(0, 30)
+      .map((bait) => ({
+        name: bait.name,
+        category: bait.category,
+        flavor: bait.flavor,
+        color: bait.color,
+        use: bait.use,
+      })),
+    recentTrips: state.trips.slice(0, 10).map((trip) => ({
+      title: trip.title,
+      spot: spotNameById(trip.spotId),
+      species: trip.species,
+      result: trip.result,
+      date: trip.date,
+      bait: baitNameById(trip.baitId),
+      lure: baitNameById(trip.lureId),
+      depthM: trip.depth,
+      note: trip.note,
+      weather: trip.weatherSnapshot,
+    })),
+    todayPlan: dom.planOutput?.textContent?.trim() || "",
     conversation: state.assistantMessages
       .filter((message) => message.tone !== "thinking")
       .slice(-8)
@@ -1058,9 +1187,19 @@ function buildFishingAdvice(question, score, now, daily, hourly, waterTemp) {
   const windowsText = windows.length
     ? windows.map((item) => `${item.time} (${item.score}/100)`).join(", ")
     : "brak mocnego okna w najbliższych godzinach";
+  const baitHints = suggestBaitsForPlan(dom.planSpeciesInput?.value || question || "", now, waterTemp, 5);
+  const baitText = baitHints.length
+    ? baitHints.map((bait) => `${bait.name}${bait.flavor ? ` (${bait.flavor})` : ""}`).join(", ")
+    : lures;
 
   if (/kiedy|godzin|pora|czas|okno/.test(text)) {
     return `Najlepsze najbliższe okna: ${windowsText}. Przy obecnych danych najpierw sprawdzałbym świt/zmierzch oraz godziny z lekkim wiatrem i stabilnym ciśnieniem.`;
+  }
+  if (/dziennik|wypraw|histori|dzialalo|działało|skuteczn|wynik/.test(text)) {
+    return tripStatsText() || "Dziennik wypraw jest jeszcze pusty. Zapisz kilka wypraw z wynikiem, przynętą i miejscem, a Fischer zacznie wyciągać wnioski z Twojej historii.";
+  }
+  if (/zanet|zanęt|przynet|przynęt|wafters|smak|kulki|pellet|robak|guma|wobler/.test(text)) {
+    return `Z aktualnej bazy zacząłbym od: ${baitText}. Dobieraj kolor do wody: naturalny w czystej, jaśniejszy albo mocniej pachnący po deszczu i przy mętnej wodzie.`;
   }
   if (/gdzie|miejsce|brzeg|szukac|lowisko/.test(text)) {
     return `Szukaj przede wszystkim: ${places}. Przy wietrze ${wind || "brak danych"} zacznij od brzegu, na który spycha pokarm, zatok, trzcin i przejść głębszej wody w płytszą.`;
@@ -1138,6 +1277,301 @@ function lureAdvice(now, waterTemp) {
   if (Number.isFinite(wind) && wind > 24) return "cięższa guma, obrotówka/wahadłówka, feeder z cięższym koszykiem albo zestaw przy dnie";
   if (Number.isFinite(rain) && rain > 55) return "zapachowe przynęty, feeder, robaki, gumy w naturalnych kolorach przy dopływach";
   return "gumy 5-9 cm, obrotówki, wobler przy roślinności, feeder lub method przy spokojniejszych miejscach";
+}
+
+async function renderFishingPlan(mode = "planned") {
+  if (mode === "today" && dom.planDateInput) dom.planDateInput.value = localDateValue();
+
+  await preparePlanSpotForPlan();
+  if (!state.weather?.hourly?.length) {
+    setStatus("Pobieram pogodę do planu wyprawy...");
+    await loadWeather();
+  }
+
+  if (!state.weather?.hourly?.length) {
+    dom.planOutput.innerHTML =
+      '<div class="empty-state">Najpierw pobierz pogodę dla łowiska, wtedy ułożę plan.</div>';
+    return;
+  }
+
+  const now = state.weather.current;
+  const waterTemp = hydroWaterTemp(state.water?.hydro);
+  const dateValue = dom.planDateInput?.value || localDateValue();
+  const species = dom.planSpeciesInput?.value.trim() || state.selected.species || "ryby z tego łowiska";
+  const periodsForDay = periodsByDate(state.weather.hourly, dateValue);
+  const planPeriods = periodsForDay.length ? periodsForDay : state.weather.hourly.slice(0, 24);
+  const scoredWindows = scorePlanPeriods(planPeriods, waterTemp).slice(0, 4);
+  const bestText = scoredWindows.length
+    ? scoredWindows.map((item) => `${item.time} (${item.score}/100)`).join(", ")
+    : "brak wyraźnego okna";
+  const baits = suggestBaitsForPlan(species, now, waterTemp, 5);
+  const baitsHtml = baits.length
+    ? baits
+        .map(
+          (bait) => `
+            <span class="plan-chip">${escapeHtml(bait.name)}</span>
+          `
+        )
+        .join("")
+    : `<span class="plan-chip">${escapeHtml(lureAdvice(now, waterTemp))}</span>`;
+  const bottomText = bottomAdviceText(selectedBottomPoints(16));
+  const title = mode === "today" ? "Plan na dzisiaj" : "Plan wyprawy";
+  const dateLabel = formatPlanDate(dateValue);
+
+  dom.planOutput.innerHTML = `
+    <div class="plan-main">
+      <strong>${escapeHtml(title)}: ${escapeHtml(state.selected.name || "wybrane łowisko")}</strong>
+      <span>${escapeHtml(dateLabel)} · cel: ${escapeHtml(species)}</span>
+    </div>
+    <div class="plan-chips">
+      <span class="plan-chip">Najlepsze okna: ${escapeHtml(bestText)}</span>
+      <span class="plan-chip">Wiatr: ${escapeHtml(formatMaybe(now.windSpeed, "km/h"))} ${escapeHtml(directionTextLong(now.windDirection))}</span>
+      <span class="plan-chip">Ciśnienie: ${escapeHtml(formatMaybe(now.pressure, "hPa"))}</span>
+    </div>
+    <div>
+      <strong>Gdzie zacząć:</strong>
+      <span>${escapeHtml(placeAdvice(now))}${bottomText ? ` ${escapeHtml(bottomText)}` : ""}</span>
+    </div>
+    <div>
+      <strong>Na co:</strong>
+      <div class="plan-chips">${baitsHtml}</div>
+    </div>
+  `;
+  setStatus("Plan wyprawy gotowy.");
+}
+
+function renderPlanOutput() {
+  if (!dom.planOutput) return;
+  if (!state.weather?.hourly?.length && !dom.planOutput.textContent.trim()) dom.planOutput.innerHTML = "";
+}
+
+async function preparePlanSpotForPlan() {
+  const spotId = dom.planSpotSelect?.value || "";
+  if (!spotId || state.selected.id === spotId) return;
+  const spot = state.spots.find((item) => item.id === spotId);
+  if (!spot) return;
+  selectLocation({ ...spot, station: spot.station || state.selected.station || "" });
+  if (state.map) state.map.setView([spot.lat, spot.lon], Math.max(state.map.getZoom(), 11));
+  await loadWeather();
+}
+
+function periodsByDate(periods, dateValue) {
+  return (periods || []).filter((period) => localDateValue(new Date(period.startTime)) === dateValue);
+}
+
+function scorePlanPeriods(periods, waterTemp) {
+  return (periods || [])
+    .map((period) => {
+      const score = scoreFishingHour({
+        tempC: period.temperature,
+        windKph: period.windSpeed,
+        precipProbability: period.precipitationProbability,
+        rainMm: period.precipitation,
+        pressure: period.pressure,
+        waterTemp,
+        shortForecast: period.shortForecast,
+      });
+      return {
+        time: new Date(period.startTime).toLocaleTimeString("pl-PL", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        score: score.value,
+      };
+    })
+    .sort((a, b) => b.score - a.score);
+}
+
+function suggestBaitsForPlan(speciesText, now = {}, waterTemp = null, count = 5) {
+  const query = normalize(speciesText);
+  const rain = numberOrNull(now.precipitationProbability);
+  const temp = firstNumber(waterTemp, now.temperature);
+  const baits = allBaits();
+  return baits
+    .map((bait, index) => {
+      const text = normalize(`${bait.name} ${bait.category} ${bait.flavor} ${bait.color} ${bait.use}`);
+      let score = 10 - index * 0.01;
+      if (/karp|amur|lin|leszcz|karas|feeder|method|splawik|bia/.test(query)) {
+        if (/wafters|pellet|zaneta|robaki|kukurydza|method|feeder|slod/.test(text)) score += 12;
+      }
+      if (/sandacz|okon|okoń|szczupak|drapiez|drapie/.test(query)) {
+        if (/guma|wobler|natural|jaskraw/.test(text)) score += 12;
+      }
+      if (Number.isFinite(rain) && rain > 45 && /rybn|czosnek|robaki|jaskraw|natural/.test(text)) score += 5;
+      if (Number.isFinite(temp) && temp > 19 && /slod|miod|kukurydza|pellet|scopex|wanilia/.test(text)) score += 5;
+      if (Number.isFinite(temp) && temp < 10 && /czosnek|rybn|natural|robaki/.test(text)) score += 5;
+      return { ...bait, score };
+    })
+    .sort((a, b) => b.score - a.score)
+    .slice(0, count);
+}
+
+function allBaits() {
+  return [...defaultBaits, ...state.baits];
+}
+
+function renderBaits() {
+  if (!dom.baitList) return;
+  const baits = allBaits();
+  dom.baitList.innerHTML = baits
+    .map((bait) => {
+      const isDefault = String(bait.id).startsWith("default-");
+      return `
+        <article class="bait-item">
+          <div>
+            <strong>${escapeHtml(bait.name)}</strong>
+            <small>${escapeHtml([bait.category, bait.flavor, bait.color].filter(Boolean).join(" · "))}</small>
+            <span>${escapeHtml(bait.use || "Brak notatki.")}</span>
+          </div>
+          ${
+            isDefault
+              ? '<span class="soft-badge">start</span>'
+              : `<button class="tiny-button" type="button" title="Usuń z bazy" data-bait-id="${bait.id}">
+                  <i data-lucide="trash-2"></i>
+                </button>`
+          }
+        </article>
+      `;
+    })
+    .join("");
+  dom.baitList.querySelectorAll("[data-bait-id]").forEach((button) => {
+    button.addEventListener("click", () => deleteBait(button.dataset.baitId));
+  });
+  syncBaitSelects();
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function handleBaitSubmit(event) {
+  event.preventDefault();
+  const name = dom.baitNameInput.value.trim();
+  if (!name) {
+    setStatus("Wpisz nazwę przynęty albo zanęty.", "warn");
+    return;
+  }
+  state.baits = [
+    {
+      id: createId(),
+      name,
+      category: dom.baitCategoryInput.value,
+      flavor: dom.baitFlavorInput.value.trim(),
+      color: dom.baitColorInput.value.trim(),
+      use: dom.baitUseInput.value.trim(),
+      createdAt: new Date().toISOString(),
+    },
+    ...state.baits,
+  ];
+  dom.baitForm.reset();
+  saveStorage();
+  renderBaits();
+  setStatus("Dodano przynętę do bazy.");
+}
+
+function deleteBait(id) {
+  state.baits = state.baits.filter((bait) => bait.id !== id);
+  state.trips = state.trips.map((trip) => ({
+    ...trip,
+    baitId: trip.baitId === id ? "" : trip.baitId,
+    lureId: trip.lureId === id ? "" : trip.lureId,
+  }));
+  saveStorage();
+  renderBaits();
+  renderAlbum();
+}
+
+function syncBaitSelects() {
+  const options =
+    '<option value="">Brak</option>' +
+    allBaits()
+      .map((bait) => `<option value="${bait.id}">${escapeHtml(bait.name)}</option>`)
+      .join("");
+  [dom.tripBaitSelect, dom.tripLureSelect].forEach((select) => {
+    if (!select) return;
+    const value = select.value;
+    select.innerHTML = options;
+    select.value = value;
+  });
+}
+
+function baitNameById(id) {
+  if (!id) return "";
+  return allBaits().find((bait) => bait.id === id)?.name || "";
+}
+
+function spotNameById(id) {
+  if (!id) return "";
+  return state.spots.find((spot) => spot.id === id)?.name || "";
+}
+
+function tripStatsText() {
+  if (!state.trips.length) return "";
+  const productive = state.trips.filter((trip) => /branie|złowiona|zlowiona|spinka/.test(normalize(trip.result)));
+  const baitCounts = new Map();
+  productive.forEach((trip) => {
+    [trip.baitId, trip.lureId].forEach((id) => {
+      const name = baitNameById(id);
+      if (!name) return;
+      baitCounts.set(name, (baitCounts.get(name) || 0) + 1);
+    });
+  });
+  const topBaits = [...baitCounts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([name, count]) => `${name} (${count})`)
+    .join(", ");
+  const last = state.trips
+    .slice(0, 3)
+    .map((trip) => `${trip.date || "bez daty"}: ${trip.result || "notatka"}${trip.species ? `, ${trip.species}` : ""}`)
+    .join("; ");
+  return `W dzienniku masz ${state.trips.length} wypraw, z czego ${productive.length} miało branie, rybę albo spinkę. Najczęściej działało: ${topBaits || "za mało danych o przynętach"}. Ostatnie wpisy: ${last}.`;
+}
+
+function currentWeatherSnapshot() {
+  if (!state.weather?.current) return null;
+  const now = state.weather.current;
+  const waterTemp = hydroWaterTemp(state.water?.hydro);
+  const score = scoreFishingHour({
+    tempC: now.temperature,
+    windKph: now.windSpeed,
+    precipProbability: now.precipitationProbability,
+    rainMm: now.precipitation,
+    pressure: now.pressure,
+    waterTemp,
+    shortForecast: now.shortForecast,
+  });
+  return {
+    time: now.startTime,
+    score: score.value,
+    weather: now.shortForecast,
+    temperatureC: now.temperature,
+    windKph: now.windSpeed,
+    windDirection: directionTextLong(now.windDirection),
+    pressureHpa: now.pressure,
+    precipitationProbabilityPercent: now.precipitationProbability,
+    waterTemperatureC: waterTemp,
+  };
+}
+
+function formatPlanDate(dateValue) {
+  const date = new Date(`${dateValue}T12:00:00`);
+  if (Number.isNaN(date.getTime())) return dateValue || "bez daty";
+  return date.toLocaleDateString("pl-PL", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+  });
+}
+
+function localDateValue(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function createId() {
+  return window.crypto?.randomUUID
+    ? window.crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
 function renderHourly(periods, waterTemp) {
@@ -1569,6 +2003,9 @@ function deleteSpot(id) {
   state.photos = state.photos.map((photo) =>
     photo.spotId === id ? { ...photo, spotId: "" } : photo
   );
+  state.trips = state.trips.map((trip) =>
+    trip.spotId === id ? { ...trip, spotId: "" } : trip
+  );
   state.bottomPoints = state.bottomPoints.map((point) =>
     point.spotId === id ? { ...point, spotId: "" } : point
   );
@@ -1582,61 +2019,132 @@ function deleteSpot(id) {
 async function handlePhotoSubmit(event) {
   event.preventDefault();
   const files = Array.from(dom.photoInput.files || []);
-  if (!files.length) {
-    setPhotoStatus("Najpierw wybierz zdjęcie albo kilka zdjęć.", "warn");
-    setStatus("Wybierz przynajmniej jedno zdjęcie.", "warn");
+  const title = dom.tripTitleInput.value.trim();
+  const species = dom.photoSpeciesInput.value.trim();
+  const note = dom.photoNoteInput.value.trim();
+  const hasText = title || species || note || dom.tripBaitSelect.value || dom.tripLureSelect.value;
+  if (!files.length && !hasText) {
+    setPhotoStatus("Wpisz chociaż krótką notatkę albo dodaj zdjęcie.", "warn");
+    setStatus("Dziennik potrzebuje notatki, wyniku albo zdjęcia.", "warn");
     return;
   }
 
-  setStatus("Kompresuję i zapisuję zdjęcia lokalnie...");
-  setPhotoStatus(`Przygotowuje ${photoCountLabel(files.length)} do zapisu...`, "working");
+  setStatus("Zapisuję wyprawę w dzienniku...");
+  setPhotoStatus(
+    files.length ? `Przygotowuję ${photoCountLabel(files.length)} do zapisu...` : "Zapisuję wpis bez zdjęcia...",
+    "working"
+  );
   try {
-    const newPhotos = [];
+    const tripPhotos = [];
     for (let index = 0; index < files.length; index += 1) {
       const file = files[index];
       setPhotoStatus(`Zapisuje ${index + 1}/${files.length}: ${file.name}`, "working");
       const dataUrl = await resizeImage(file, 1400, 0.82);
-      newPhotos.push({
-        id: crypto.randomUUID(),
+      tripPhotos.push({
+        id: createId(),
         src: dataUrl,
         name: file.name,
-        spotId: dom.photoSpotSelect.value,
-        species: dom.photoSpeciesInput.value.trim(),
-        date: dom.photoDateInput.value || new Date().toISOString().slice(0, 10),
-        note: dom.photoNoteInput.value.trim(),
-        createdAt: new Date().toISOString(),
       });
     }
-    state.photos = [...newPhotos, ...state.photos];
+
+    const trip = {
+      id: createId(),
+      title,
+      spotId: dom.photoSpotSelect.value,
+      species,
+      result: dom.tripResultInput.value,
+      date: dom.photoDateInput.value || localDateValue(),
+      depth: numberOrNull(dom.tripDepthInput.value),
+      baitId: dom.tripBaitSelect.value,
+      lureId: dom.tripLureSelect.value,
+      note,
+      photos: tripPhotos,
+      weatherSnapshot: currentWeatherSnapshot(),
+      bottom: buildBottomContext(selectedBottomPoints(16)),
+      createdAt: new Date().toISOString(),
+    };
+
+    state.trips = [trip, ...state.trips];
     saveStorage();
     dom.photoForm.reset();
     resetPhotoPicker();
     dom.photoDateInput.valueAsDate = new Date();
+    syncBaitSelects();
     renderAlbum();
-    setPhotoStatus(`Zapisano ${photoCountLabel(newPhotos.length)} w albumie.`, "success");
-    setStatus(`Dodano zdjęcia: ${newPhotos.length}.`);
+    setPhotoStatus(
+      files.length ? `Zapisano wyprawę i ${photoCountLabel(tripPhotos.length)}.` : "Zapisano wyprawę bez zdjęcia.",
+      "success"
+    );
+    setStatus("Dodano wpis do dziennika wypraw.");
   } catch (error) {
     console.error(error);
-    setPhotoStatus("Nie udało się zapisać zdjęć. Spróbuj mniejszy plik albo mniej zdjęć naraz.", "warn");
-    setStatus("Nie udało się zapisać zdjęć. Możliwe, że pamięć przeglądarki jest pełna.", "warn");
+    setPhotoStatus("Nie udało się zapisać wyprawy. Spróbuj mniejszy plik albo mniej zdjęć naraz.", "warn");
+    setStatus("Nie udało się zapisać wyprawy. Możliwe, że pamięć przeglądarki jest pełna.", "warn");
   }
 }
 
 function renderAlbum() {
-  if (!state.photos.length) {
-    dom.albumGrid.innerHTML = '<div class="empty-state">Album jest pusty.</div>';
+  const legacyPhotos = state.photos || [];
+  if (!state.trips.length && !legacyPhotos.length) {
+    dom.albumGrid.innerHTML =
+      '<div class="empty-state">Dziennik jest pusty. Zapisz pierwszą wyprawę, a Fischer zacznie widzieć Twoją historię łowienia.</div>';
     return;
   }
-  dom.albumGrid.innerHTML = state.photos
+
+  const tripCards = state.trips
+    .map((trip) => {
+      const spotName = spotNameById(trip.spotId);
+      const cover = trip.photos?.[0];
+      const title = trip.title || trip.species || "Wyprawa";
+      const weather = trip.weatherSnapshot;
+      const tags = [
+        trip.result,
+        trip.species,
+        Number.isFinite(trip.depth) ? `${trip.depth} m` : "",
+        baitNameById(trip.baitId),
+        baitNameById(trip.lureId),
+        trip.photos?.length > 1 ? `${trip.photos.length} zdjęcia` : "",
+      ].filter(Boolean);
+      return `
+        <article class="photo-card">
+          ${
+            cover
+              ? `<img src="${cover.src}" alt="${escapeHtml(title)}" loading="lazy" />`
+              : `<div class="trip-cover">${escapeHtml(title)}</div>`
+          }
+          <div class="photo-card-body">
+            <strong>${escapeHtml(title)}</strong>
+            <small>${escapeHtml(trip.date || "")}${spotName ? ` · ${escapeHtml(spotName)}` : ""}</small>
+            <div class="trip-tags">
+              ${tags.map((tag) => `<span class="trip-tag">${escapeHtml(tag)}</span>`).join("")}
+            </div>
+            ${
+              weather
+                ? `<small>${escapeHtml(weather.weather || "pogoda")} · ${escapeHtml(formatMaybe(weather.temperatureC, "°C"))} · wiatr ${escapeHtml(formatMaybe(weather.windKph, "km/h"))}</small>`
+                : ""
+            }
+            <span class="trip-note">${escapeHtml(trip.note || "Brak notatki.")}</span>
+            <div class="photo-card-actions">
+              <button class="tiny-button" type="button" title="Usuń wpis" data-trip-id="${trip.id}">
+                <i data-lucide="trash-2"></i>
+              </button>
+            </div>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+
+  const legacyCards = legacyPhotos
     .map((photo) => {
-      const spot = state.spots.find((item) => item.id === photo.spotId);
+      const spotName = spotNameById(photo.spotId);
       return `
         <article class="photo-card">
           <img src="${photo.src}" alt="${escapeHtml(photo.species || photo.name || "Zdjęcie z wyprawy")}" loading="lazy" />
           <div class="photo-card-body">
-            <strong>${escapeHtml(photo.species || "Zdjęcie z wyprawy")}</strong>
-            <small>${escapeHtml(photo.date || "")}${spot ? ` · ${escapeHtml(spot.name)}` : ""}</small>
-            <span>${escapeHtml(photo.note || photo.name || "")}</span>
+            <strong>${escapeHtml(photo.species || "Stare zdjęcie z albumu")}</strong>
+            <small>${escapeHtml(photo.date || "")}${spotName ? ` · ${escapeHtml(spotName)}` : ""}</small>
+            <span class="trip-note">${escapeHtml(photo.note || photo.name || "")}</span>
             <div class="photo-card-actions">
               <button class="tiny-button" type="button" title="Usuń zdjęcie" data-photo-id="${photo.id}">
                 <i data-lucide="trash-2"></i>
@@ -1647,10 +2155,21 @@ function renderAlbum() {
       `;
     })
     .join("");
+
+  dom.albumGrid.innerHTML = tripCards + legacyCards;
+  dom.albumGrid.querySelectorAll("[data-trip-id]").forEach((button) => {
+    button.addEventListener("click", () => deleteTrip(button.dataset.tripId));
+  });
   dom.albumGrid.querySelectorAll("[data-photo-id]").forEach((button) => {
     button.addEventListener("click", () => deletePhoto(button.dataset.photoId));
   });
   if (window.lucide) window.lucide.createIcons();
+}
+
+function deleteTrip(id) {
+  state.trips = state.trips.filter((trip) => trip.id !== id);
+  saveStorage();
+  renderAlbum();
 }
 
 function deletePhoto(id) {
@@ -1660,22 +2179,29 @@ function deletePhoto(id) {
 }
 
 function clearAlbum() {
-  if (!state.photos.length) return;
-  const confirmed = confirm("Usunąć wszystkie zdjęcia z lokalnego albumu?");
+  if (!state.trips.length && !state.photos.length) return;
+  const confirmed = confirm("Usunąć cały lokalny dziennik wypraw i stare zdjęcia?");
   if (!confirmed) return;
+  state.trips = [];
   state.photos = [];
   saveStorage();
   renderAlbum();
 }
 
 function syncPhotoSpotSelect() {
-  const currentValue = dom.photoSpotSelect.value;
-  dom.photoSpotSelect.innerHTML =
-    '<option value="">Bez przypisania</option>' +
-    state.spots
-      .map((spot) => `<option value="${spot.id}">${escapeHtml(spot.name)}</option>`)
-      .join("");
-  dom.photoSpotSelect.value = currentValue;
+  const spotOptions = state.spots
+    .map((spot) => `<option value="${spot.id}">${escapeHtml(spot.name)}</option>`)
+    .join("");
+  if (dom.photoSpotSelect) {
+    const currentValue = dom.photoSpotSelect.value;
+    dom.photoSpotSelect.innerHTML = '<option value="">Bez przypisania</option>' + spotOptions;
+    dom.photoSpotSelect.value = currentValue;
+  }
+  if (dom.planSpotSelect) {
+    const currentValue = dom.planSpotSelect.value;
+    dom.planSpotSelect.innerHTML = '<option value="">Aktualne miejsce</option>' + spotOptions;
+    dom.planSpotSelect.value = currentValue;
+  }
 }
 
 function resizeImage(file, maxSize, quality) {
@@ -1706,10 +2232,12 @@ function exportData() {
       JSON.stringify(
         {
           exportedAt: new Date().toISOString(),
-          version: 2,
+          version: 3,
           selected: state.selected,
           spots: state.spots,
           photos: state.photos,
+          trips: state.trips,
+          baits: state.baits,
           bottomPoints: state.bottomPoints,
         },
         null,
@@ -1733,6 +2261,8 @@ async function importData() {
     const data = JSON.parse(await file.text());
     state.spots = Array.isArray(data.spots) ? data.spots : [];
     state.photos = Array.isArray(data.photos) ? data.photos : [];
+    state.trips = Array.isArray(data.trips) ? data.trips : [];
+    state.baits = Array.isArray(data.baits) ? data.baits : [];
     state.bottomPoints = Array.isArray(data.bottomPoints) ? data.bottomPoints : [];
     if (Number.isFinite(Number(data.selected?.lat)) && Number.isFinite(Number(data.selected?.lon))) {
       state.selected = data.selected;
@@ -1742,6 +2272,7 @@ async function importData() {
     saveStorage();
     renderSpots();
     renderSpotMarkers();
+    renderBaits();
     renderBottomProfile();
     renderAlbum();
     setStatus("Import zakończony.");

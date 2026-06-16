@@ -130,6 +130,20 @@ h2 {
   line-height: 1.2;
 }
 
+.soft-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 11px;
+  border: 1px solid rgba(8, 124, 189, 0.16);
+  border-radius: 999px;
+  color: #245364;
+  background: rgba(236, 248, 250, 0.86);
+  font-size: 0.82rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
 .app-footer,
 .field span,
 .field small,
@@ -207,6 +221,75 @@ h2 {
   height: 3px;
   background: linear-gradient(90deg, var(--water), #2bb4c4, var(--reed));
   opacity: 0.8;
+}
+
+.plan-section {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+  padding: 16px;
+  border: 1px solid rgba(168, 194, 197, 0.62);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(238, 249, 251, 0.86));
+  box-shadow: var(--shadow-soft);
+}
+
+.plan-head,
+.tackle-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.plan-grid {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) minmax(130px, 0.7fr) minmax(180px, 1fr) auto;
+  align-items: end;
+  gap: 12px;
+}
+
+.plan-output {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(8, 124, 189, 0.14);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.plan-output:empty {
+  display: none;
+}
+
+.plan-main {
+  display: grid;
+  gap: 5px;
+}
+
+.plan-main strong {
+  font-size: 1.08rem;
+}
+
+.plan-chips,
+.trip-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.plan-chip,
+.trip-tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 9px;
+  border-radius: 999px;
+  color: #1e4351;
+  background: #edf8fa;
+  font-size: 0.8rem;
+  font-weight: 800;
 }
 
 .field {
@@ -370,6 +453,7 @@ body.drawer-open {
 .panel,
 .spot-editor,
 .bottom-section,
+.tackle-section,
 .album-section,
 .settings-section,
 .map-section {
@@ -384,6 +468,7 @@ body.drawer-open {
 .panel,
 .spot-editor,
 .bottom-section,
+.tackle-section,
 .album-section,
 .settings-section {
   padding: 18px;
@@ -392,6 +477,7 @@ body.drawer-open {
 .panel,
 .spot-editor,
 .bottom-section,
+.tackle-section,
 .album-section,
 .settings-section,
 .map-section,
@@ -405,6 +491,7 @@ body.drawer-open {
 .panel:hover,
 .spot-editor:hover,
 .bottom-section:hover,
+.tackle-section:hover,
 .album-section:hover,
 .settings-section:hover,
 .map-section:hover {
@@ -412,6 +499,8 @@ body.drawer-open {
 }
 
 .panel-title-row,
+.plan-head,
+.tackle-head,
 .album-head,
 .settings-head,
 .map-toolbar {
@@ -894,6 +983,7 @@ body.drawer-open {
 .hour-card,
 .marine-item,
 .spot-item,
+.bait-item,
 .photo-card {
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -914,6 +1004,7 @@ body.drawer-open {
 
 .hour-card:hover,
 .spot-item:hover,
+.bait-item:hover,
 .photo-card:hover {
   border-color: #b5d2d6;
   transform: translateY(-1px);
@@ -1015,6 +1106,7 @@ body.drawer-open {
 }
 
 .spot-form,
+.bait-form,
 .photo-form {
   display: grid;
   gap: 12px;
@@ -1025,12 +1117,23 @@ body.drawer-open {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.bait-form {
+  grid-template-columns: 1.1fr 0.8fr 1fr 0.8fr;
+}
+
+.photo-form {
+  grid-template-columns: 1.1fr repeat(3, minmax(0, 1fr));
+}
+
 .spot-form .wide,
+.bait-form .wide,
 .photo-form .wide {
   grid-column: 1 / -1;
 }
 
-.spot-form button {
+.spot-form button,
+.bait-form button,
+.photo-form button {
   justify-self: start;
 }
 
@@ -1073,9 +1176,35 @@ body.drawer-open {
   background: #edf5f0;
 }
 
+.tackle-section,
 .album-section,
 .settings-section {
   margin-top: 18px;
+}
+
+.bait-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.bait-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  padding: 12px;
+}
+
+.bait-item strong,
+.bait-item span {
+  overflow-wrap: anywhere;
+}
+
+.bait-item small,
+.trip-note {
+  color: var(--muted);
+  line-height: 1.35;
 }
 
 .settings-section {
@@ -1486,6 +1615,20 @@ body.drawer-open {
   border-bottom: 1px solid var(--line);
 }
 
+.trip-cover {
+  display: grid;
+  place-items: center;
+  min-height: 148px;
+  padding: 16px;
+  color: #245364;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(74, 178, 230, 0.18), transparent 32%),
+    linear-gradient(135deg, #eef8fa, #f9fcf9);
+  border-bottom: 1px solid var(--line);
+  font-weight: 850;
+  text-align: center;
+}
+
 .photo-card-body {
   display: grid;
   gap: 7px;
@@ -1537,17 +1680,22 @@ body.drawer-open {
   .control-strip,
   .workspace,
   .depth-form,
+  .plan-grid,
+  .bait-form,
   .photo-form {
     grid-template-columns: 1fr 1fr;
   }
 
   .control-strip .primary-button,
   .depth-form .primary-button,
+  .plan-grid .icon-button,
+  .bait-form .primary-button,
   .photo-form .primary-button {
     width: 100%;
   }
 
-  .depth-form .wide {
+  .depth-form .wide,
+  .bait-form .wide {
     grid-column: 1 / -1;
   }
 
@@ -1586,11 +1734,14 @@ body.drawer-open {
   .assistant-form,
   .spot-form,
   .depth-form,
+  .plan-grid,
+  .bait-form,
   .photo-form {
     grid-template-columns: 1fr;
   }
 
-  .depth-form .wide {
+  .depth-form .wide,
+  .bait-form .wide {
     grid-column: auto;
   }
 
@@ -1601,6 +1752,8 @@ body.drawer-open {
   }
 
   .panel-title-row,
+  .plan-head,
+  .tackle-head,
   .album-head,
   .settings-head,
   .map-toolbar {

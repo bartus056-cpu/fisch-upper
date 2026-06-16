@@ -132,6 +132,42 @@
         </button>
       </section>
 
+      <section class="plan-section" aria-labelledby="planHeading">
+        <div class="plan-head">
+          <div>
+            <p class="eyebrow">Plan wyprawy</p>
+            <h2 id="planHeading">Co na dzisiaj?</h2>
+          </div>
+          <div class="plan-actions">
+            <button class="primary-button" id="todayPlanButton" type="button">
+              <i data-lucide="sparkles"></i>
+              <span>Co na dzisiaj</span>
+            </button>
+          </div>
+        </div>
+        <div class="plan-grid">
+          <label class="field">
+            <span>Łowisko</span>
+            <select id="planSpotSelect">
+              <option value="">Aktualne miejsce</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Dzień</span>
+            <input id="planDateInput" type="date" />
+          </label>
+          <label class="field">
+            <span>Cel</span>
+            <input id="planSpeciesInput" type="text" placeholder="np. karp, sandacz, feeder" />
+          </label>
+          <button class="icon-button" id="buildPlanButton" type="button">
+            <i data-lucide="route"></i>
+            <span>Ułóż plan</span>
+          </button>
+        </div>
+        <div class="plan-output" id="planOutput"></div>
+      </section>
+
       <section class="workspace">
         <div class="weather-column">
           <section class="panel weather-now" aria-labelledby="weatherHeading">
@@ -329,13 +365,59 @@
         </div>
       </section>
 
+      <section class="tackle-section" aria-labelledby="tackleHeading">
+        <div class="tackle-head">
+          <div>
+            <p class="eyebrow">Baza</p>
+            <h2 id="tackleHeading">Przynęty i zanęty</h2>
+          </div>
+          <span class="soft-badge">Twoje sprawdzone zestawy</span>
+        </div>
+        <form id="baitForm" class="bait-form">
+          <label class="field">
+            <span>Nazwa</span>
+            <input id="baitNameInput" type="text" placeholder="np. wafters ananas 8 mm" />
+          </label>
+          <label class="field">
+            <span>Typ</span>
+            <select id="baitCategoryInput">
+              <option>wafters</option>
+              <option>kulki</option>
+              <option>pellet</option>
+              <option>zanęta</option>
+              <option>robaki</option>
+              <option>guma</option>
+              <option>wobler</option>
+              <option>inne</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Smak / zapach</span>
+            <input id="baitFlavorInput" type="text" placeholder="np. scopex, czosnek, ryba" />
+          </label>
+          <label class="field">
+            <span>Kolor</span>
+            <input id="baitColorInput" type="text" placeholder="np. żółty, naturalny" />
+          </label>
+          <label class="field wide">
+            <span>Kiedy używać</span>
+            <input id="baitUseInput" type="text" placeholder="np. method przy trzcinach, ciepła woda, lekka fala" />
+          </label>
+          <button class="primary-button" type="submit">
+            <i data-lucide="plus"></i>
+            <span>Dodaj do bazy</span>
+          </button>
+        </form>
+        <div class="bait-list" id="baitList"></div>
+      </section>
+
       <section class="album-section" aria-labelledby="albumHeading">
         <div class="album-head">
           <div>
-            <p class="eyebrow">Album wypraw</p>
-            <h2 id="albumHeading">Zdjęcia i połowy</h2>
+            <p class="eyebrow">Dziennik</p>
+            <h2 id="albumHeading">Dziennik wypraw</h2>
           </div>
-          <button class="icon-button ghost" id="clearAlbumButton" type="button" title="Wyczyść album">
+          <button class="icon-button ghost" id="clearAlbumButton" type="button" title="Wyczyść dziennik">
             <i data-lucide="trash-2"></i>
             <span>Wyczyść</span>
           </button>
@@ -343,7 +425,7 @@
         <form id="photoForm" class="photo-form">
           <label class="file-drop" id="fileDrop" for="photoInput">
             <i data-lucide="image-plus"></i>
-            <span id="photoDropTitle">Dodaj zdjęcia</span>
+            <span id="photoDropTitle">Dodaj zdjęcia z wyprawy</span>
             <small id="photoDropMeta">JPG, PNG, WebP</small>
           </label>
           <input id="photoInput" type="file" accept="image/*" multiple hidden />
@@ -354,20 +436,50 @@
             </select>
           </label>
           <label class="field">
-            <span>Gatunek</span>
-            <input id="photoSpeciesInput" type="text" placeholder="np. sandacz" />
+            <span>Nazwa wyprawy</span>
+            <input id="tripTitleInput" type="text" placeholder="np. poranny feeder na Malinie" />
+          </label>
+          <label class="field">
+            <span>Ryba / cel</span>
+            <input id="photoSpeciesInput" type="text" placeholder="np. karp, sandacz, feeder" />
+          </label>
+          <label class="field">
+            <span>Wynik</span>
+            <select id="tripResultInput">
+              <option>obserwacja</option>
+              <option>brak brań</option>
+              <option>branie</option>
+              <option>ryba złowiona</option>
+              <option>spinka</option>
+            </select>
           </label>
           <label class="field">
             <span>Data</span>
             <input id="photoDateInput" type="date" />
           </label>
+          <label class="field">
+            <span>Głębokość</span>
+            <input id="tripDepthInput" type="number" min="0" step="0.1" inputmode="decimal" placeholder="metry" />
+          </label>
+          <label class="field">
+            <span>Zanęta</span>
+            <select id="tripBaitSelect">
+              <option value="">Brak</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Przynęta</span>
+            <select id="tripLureSelect">
+              <option value="">Brak</option>
+            </select>
+          </label>
           <label class="field wide">
-            <span>Opis</span>
-            <input id="photoNoteInput" type="text" placeholder="Przynęta, pogoda, wymiar" />
+            <span>Notatka</span>
+            <input id="photoNoteInput" type="text" placeholder="Co działało, gdzie były brania, jaki zestaw i odległość" />
           </label>
           <button class="primary-button" type="submit">
             <i data-lucide="save"></i>
-            <span>Zapisz zdjęcia</span>
+            <span>Zapisz wyprawę</span>
           </button>
         </form>
         <div class="photo-status" id="photoStatus" role="status" aria-live="polite" hidden>
