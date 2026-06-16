@@ -169,81 +169,6 @@ const weatherCodeText = {
   99: "Silna burza z gradem",
 };
 
-const defaultBaits = [
-  {
-    id: "default-wafters-scopex",
-    name: "Wafters scopex / wanilia",
-    category: "wafters",
-    flavor: "słodki",
-    color: "żółty / biały",
-    use: "method feeder, karp, leszcz, spokojna albo lekko falująca woda",
-  },
-  {
-    id: "default-wafters-czosnek",
-    name: "Wafters czosnek / przyprawa",
-    category: "wafters",
-    flavor: "ostry",
-    color: "pomarańczowy",
-    use: "chłodniejsza woda, słabsze brania, punktowe nęcenie",
-  },
-  {
-    id: "default-pellet-halibut",
-    name: "Pellet halibut / ryba",
-    category: "pellet",
-    flavor: "rybny",
-    color: "ciemny",
-    use: "karp, amur, leszcz, cieplejsza woda i stabilne ciśnienie",
-  },
-  {
-    id: "default-corn-honey",
-    name: "Kukurydza miód",
-    category: "inne",
-    flavor: "miód",
-    color: "żółty",
-    use: "lin, karaś, karp, płytkie blaty i okolice roślin",
-  },
-  {
-    id: "default-red-worms",
-    name: "Czerwone robaki",
-    category: "robaki",
-    flavor: "naturalny",
-    color: "naturalny",
-    use: "po deszczu, przy dopływach, na białą rybę i okonia",
-  },
-  {
-    id: "default-natural-gum",
-    name: "Guma naturalna 7 cm",
-    category: "guma",
-    flavor: "brak",
-    color: "naturalny",
-    use: "okoń, sandacz, czystsza woda, wolne prowadzenie przy dnie",
-  },
-  {
-    id: "default-bright-gum",
-    name: "Guma jaskrawa 8 cm",
-    category: "guma",
-    flavor: "brak",
-    color: "chartreuse",
-    use: "mętna woda, opad, słabsza widoczność, szybkie sprawdzanie miejsc",
-  },
-  {
-    id: "default-sweet-groundbait",
-    name: "Zanęta feeder słodka",
-    category: "zanęta",
-    flavor: "słodki",
-    color: "jasny",
-    use: "ciepłe dni, leszcz, karp, regularne donęcanie małymi porcjami",
-  },
-  {
-    id: "default-fish-groundbait",
-    name: "Zanęta rybna / pelletowa",
-    category: "zanęta",
-    flavor: "rybny",
-    color: "ciemny",
-    use: "zimniejsza woda, większa ryba, ostrożne nęcenie",
-  },
-];
-
 const state = {
   selected: { ...presets[0] },
   spots: [],
@@ -269,6 +194,10 @@ const dom = {
   loadWeatherButton: document.querySelector("#loadWeatherButton"),
   refreshButton: document.querySelector("#refreshButton"),
   focusMapButton: document.querySelector("#focusMapButton"),
+  tabButtons: document.querySelectorAll("[data-tab-target]"),
+  tabNow: document.querySelector("#tabNow"),
+  tabPlan: document.querySelector("#tabPlan"),
+  tabNotes: document.querySelector("#tabNotes"),
   planSpotSelect: document.querySelector("#planSpotSelect"),
   planDateInput: document.querySelector("#planDateInput"),
   planSpeciesInput: document.querySelector("#planSpeciesInput"),
@@ -344,6 +273,7 @@ function init() {
   loadStorage();
   setupPresets();
   setupStationList();
+  setupTabs();
   setupMap();
   bindEvents();
   hydrateInputs();
@@ -422,6 +352,41 @@ function setupStationList() {
     .join("");
 }
 
+function setupTabs() {
+  const panelsReady = dom.tabNow && dom.tabPlan && dom.tabNotes;
+  if (!panelsReady) return;
+
+  const moveTo = (target, selector) => {
+    const node = document.querySelector(selector);
+    if (node) target.append(node);
+  };
+
+  moveTo(dom.tabNow, ".workspace");
+  moveTo(dom.tabPlan, ".plan-section");
+  moveTo(dom.tabPlan, '[aria-labelledby="hourlyHeading"]');
+  moveTo(dom.tabNotes, '[aria-labelledby="marineHeading"]');
+  moveTo(dom.tabNotes, ".spot-editor");
+  moveTo(dom.tabNotes, ".bottom-section");
+  moveTo(dom.tabNotes, ".tackle-section");
+  moveTo(dom.tabNotes, ".album-section");
+  switchTab("now");
+}
+
+function switchTab(tabName) {
+  const selected = ["now", "plan", "notes"].includes(tabName) ? tabName : "now";
+  document.querySelectorAll("[data-tab-panel]").forEach((panel) => {
+    panel.classList.toggle("is-active", panel.dataset.tabPanel === selected);
+  });
+  dom.tabButtons.forEach((button) => {
+    const isActive = button.dataset.tabTarget === selected;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-selected", String(isActive));
+  });
+  if (selected === "now" && state.map) {
+    window.setTimeout(() => state.map.invalidateSize(), 80);
+  }
+}
+
 function setupMap() {
   if (!window.L) {
     dom.mapFallback.hidden = false;
@@ -467,6 +432,10 @@ function bindEvents() {
   dom.loadWeatherButton.addEventListener("click", () => {
     selectLocation(readInputs());
     loadWeather();
+  });
+
+  dom.tabButtons.forEach((button) => {
+    button.addEventListener("click", () => switchTab(button.dataset.tabTarget));
   });
 
   dom.refreshButton.addEventListener("click", loadWeather);
@@ -1407,29 +1376,37 @@ function suggestBaitsForPlan(speciesText, now = {}, waterTemp = null, count = 5)
 }
 
 function allBaits() {
-  return [...defaultBaits, ...state.baits];
+  return state.baits;
 }
 
 function renderBaits() {
   if (!dom.baitList) return;
   const baits = allBaits();
+  if (!baits.length) {
+    dom.baitList.innerHTML =
+      '<div class="empty-state">Nie masz jeszcze własnych przynęt ani zanęt. Dodaj pierwszą, a potem wybierzesz ją w dzienniku wypraw i Fischer będzie mógł jej używać w poradach.</div>';
+    syncBaitSelects();
+    return;
+  }
   dom.baitList.innerHTML = baits
     .map((bait) => {
-      const isDefault = String(bait.id).startsWith("default-");
+      const tags = [bait.category, bait.flavor, bait.color].filter(Boolean);
       return `
         <article class="bait-item">
-          <div>
-            <strong>${escapeHtml(bait.name)}</strong>
-            <small>${escapeHtml([bait.category, bait.flavor, bait.color].filter(Boolean).join(" · "))}</small>
-            <span>${escapeHtml(bait.use || "Brak notatki.")}</span>
+          <div class="bait-card-head">
+            <span class="bait-icon">${escapeHtml(baitIcon(bait.category))}</span>
+            <div>
+              <strong>${escapeHtml(bait.name)}</strong>
+              <small>${escapeHtml(bait.category || "przynęta")}</small>
+            </div>
+            <button class="tiny-button" type="button" title="Usuń z bazy" data-bait-id="${bait.id}">
+              <i data-lucide="trash-2"></i>
+            </button>
           </div>
-          ${
-            isDefault
-              ? '<span class="soft-badge">start</span>'
-              : `<button class="tiny-button" type="button" title="Usuń z bazy" data-bait-id="${bait.id}">
-                  <i data-lucide="trash-2"></i>
-                </button>`
-          }
+          <div class="bait-tags">
+            ${tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}
+          </div>
+          <p>${escapeHtml(bait.use || "Brak notatki.")}</p>
         </article>
       `;
     })
@@ -1439,6 +1416,15 @@ function renderBaits() {
   });
   syncBaitSelects();
   if (window.lucide) window.lucide.createIcons();
+}
+
+function baitIcon(category) {
+  const text = normalize(category);
+  if (/zanet/.test(text)) return "Z";
+  if (/guma|wobler/.test(text)) return "D";
+  if (/robak/.test(text)) return "R";
+  if (/pellet|kulki|wafters/.test(text)) return "P";
+  return "W";
 }
 
 function handleBaitSubmit(event) {
