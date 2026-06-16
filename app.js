@@ -1,4 +1,6 @@
 const STORAGE_KEY = "fishing-weather-poland-v2";
+const FISCHER_AI_ENDPOINT = "https://fischer-ai.bartus056.workers.dev";
+const FISCHER_AI_TIMEOUT_MS = 12000;
 
 const imgwStations = [
   { name: "Białystok", lat: 53.1325, lon: 23.1688 },
@@ -814,7 +816,7 @@ function handleAssistantSubmit(event) {
   answerAssistant(question);
 }
 
-function answerAssistant(question) {
+async function answerAssistant(question) {
   if (!dom.assistantAnswer) return;
   if (!state.weather?.current || !state.weather?.hourly?.length) {
     dom.assistantAnswer.textContent = "Najpierw pobierz pogodę dla łowiska. Wtedy odpowiem na bazie aktualnych danych.";
@@ -831,7 +833,7 @@ function answerAssistant(question) {
     waterTemp,
     shortForecast: now.shortForecast,
   });
-  dom.assistantAnswer.textContent = buildFishingAdvice(
+  const localAnswer = buildFishingAdvice(
     question,
     score,
     now,
@@ -839,6 +841,94 @@ function answerAssistant(question) {
     state.weather.hourly,
     waterTemp
   );
+
+  const endpoint = getFischerAiEndpoint();
+  if (!endpoint) {
+    dom.assistantAnswer.textContent = localAnswer;
+    return;
+  }
+
+  dom.assistantAnswer.textContent = "Fischer AI sprawdza dane i układa odpowiedź...";
+  try {
+    const aiAnswer = await fetchFischerAi(
+      question || "Podsumuj warunki i doradź, jak łowić.",
+      buildFischerContext(question, score, now, state.weather.daily, state.weather.hourly, waterTemp, localAnswer),
+      endpoint
+    );
+    dom.assistantAnswer.textContent = aiAnswer;
+  } catch (error) {
+    console.warn("Fischer AI nie odpowiedział", error);
+    dom.assistantAnswer.textContent = `${localAnswer}\n\nFischer AI nie odpowiedział, więc pokazuję lokalną podpowiedź.`;
+  }
+}
+
+function getFischerAiEndpoint() {
+  return String(FISCHER_AI_ENDPOINT || localStorage.getItem("fischer-ai-endpoint") || "").trim();
+}
+
+function buildFischerContext(question, score, now, daily, hourly, waterTemp, localAnswer) {
+  return {
+    question: question || "podsumowanie",
+    selected: {
+      name: state.selected.name || "Wybrane łowisko",
+      lat: state.selected.lat,
+      lon: state.selected.lon,
+      station: state.selected.station,
+    },
+    score: score.value,
+    localAnswer,
+    current: {
+      time: now.startTime,
+      weather: now.shortForecast,
+      temperatureC: now.temperature,
+      apparentTemperatureC: now.apparentTemperature,
+      waterTemperatureC: waterTemp,
+      humidityPercent: now.relativeHumidity,
+      pressureHpa: now.pressure,
+      precipitationMm: now.precipitation,
+      precipitationProbabilityPercent: now.precipitationProbability,
+      windKph: now.windSpeed,
+      windDirection: directionTextLong(now.windDirection),
+      windGustKph: now.windGust,
+      cloudCoverPercent: now.cloudCover,
+    },
+    daily: {
+      sunrise: daily?.sunrise,
+      sunset: daily?.sunset,
+      daylight: formatDuration(daily?.daylightDuration),
+      uvIndexMax: daily?.uvIndexMax,
+      windGustMaxKph: daily?.windGustMax,
+      precipitationProbabilityMaxPercent: daily?.precipitationProbabilityMax,
+      moon: moonPhaseInfo(new Date(now.startTime || Date.now())),
+    },
+    bestWindows: bestFishingWindows(hourly, waterTemp, 5),
+    savedSpots: state.spots.slice(0, 8).map((spot) => ({
+      name: spot.name,
+      type: spot.type,
+      species: spot.species,
+      notes: spot.notes,
+    })),
+  };
+}
+
+async function fetchFischerAi(question, context, endpoint) {
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), FISCHER_AI_TIMEOUT_MS);
+  try {
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question, context }),
+      signal: controller.signal,
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || `Błąd Fischera AI: ${response.status}`);
+    const answer = String(data.answer || "").trim();
+    if (!answer) throw new Error("Pusta odpowiedź z Gemini");
+    return answer;
+  } finally {
+    window.clearTimeout(timeoutId);
+  }
 }
 
 function buildFishingAdvice(question, score, now, daily, hourly, waterTemp) {
