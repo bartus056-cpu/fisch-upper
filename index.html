@@ -143,14 +143,14 @@
         </button>
         <button class="tab-button" type="button" data-tab-target="notes" aria-selected="false">
           <i data-lucide="book-open"></i>
-          <span>Notatki</span>
+          <span>Moje</span>
         </button>
       </nav>
 
       <div class="tab-panels">
         <section class="tab-panel is-active" id="tabNow" data-tab-panel="now" aria-label="Pogoda i mapa"></section>
         <section class="tab-panel" id="tabPlan" data-tab-panel="plan" aria-label="Plan wyprawy"></section>
-        <section class="tab-panel" id="tabNotes" data-tab-panel="notes" aria-label="Notatki i dane"></section>
+        <section class="tab-panel" id="tabNotes" data-tab-panel="notes" aria-label="Moje łowiska i dziennik"></section>
       </div>
 
       <section class="plan-section" aria-labelledby="planHeading">
@@ -262,14 +262,17 @@
             <div class="hourly-list" id="hourlyList"></div>
           </section>
 
-          <section class="panel" aria-labelledby="marineHeading">
-            <div class="panel-title-row">
-              <div>
-                <p class="eyebrow">IMGW</p>
-                <h2 id="marineHeading">Stacja i woda</h2>
-              </div>
-            </div>
-            <div class="marine-list" id="marineList"></div>
+          <section class="panel technical-panel" aria-labelledby="marineHeading">
+            <details>
+              <summary>
+                <span>
+                  <span class="eyebrow">Dane techniczne</span>
+                  <strong id="marineHeading">IMGW i wodowskaz</strong>
+                </span>
+                <i data-lucide="chevron-down"></i>
+              </summary>
+              <div class="marine-list" id="marineList"></div>
+            </details>
           </section>
         </div>
 

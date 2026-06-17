@@ -1170,6 +1170,44 @@ body.drawer-open {
   color: var(--muted);
 }
 
+.technical-panel {
+  box-shadow: var(--shadow-soft);
+}
+
+.technical-panel details {
+  display: grid;
+  gap: 12px;
+}
+
+.technical-panel summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.technical-panel summary::-webkit-details-marker {
+  display: none;
+}
+
+.technical-panel summary strong {
+  display: block;
+  font-size: 1rem;
+}
+
+.technical-panel summary svg {
+  width: 18px;
+  height: 18px;
+  color: var(--muted);
+  transition: transform 150ms ease;
+}
+
+.technical-panel details[open] summary svg {
+  transform: rotate(180deg);
+}
+
 .map-section {
   overflow: hidden;
   box-shadow: 0 22px 55px rgba(16, 33, 43, 0.13);

@@ -364,11 +364,11 @@ function setupTabs() {
   moveTo(dom.tabNow, ".workspace");
   moveTo(dom.tabPlan, ".plan-section");
   moveTo(dom.tabPlan, '[aria-labelledby="hourlyHeading"]');
-  moveTo(dom.tabNotes, '[aria-labelledby="marineHeading"]');
   moveTo(dom.tabNotes, ".spot-editor");
   moveTo(dom.tabNotes, ".bottom-section");
   moveTo(dom.tabNotes, ".tackle-section");
   moveTo(dom.tabNotes, ".album-section");
+  moveTo(dom.tabNotes, '[aria-labelledby="marineHeading"]');
   switchTab("now");
 }
 
@@ -952,8 +952,8 @@ async function answerAssistant(question) {
     return;
   }
 
-  const pendingId = addAssistantMessage("assistant", "Fischer sprawdza pogodę, łowisko i poprzednie pytania...", "thinking");
-  dom.assistantAnswer.textContent = "";
+  const pendingId = addAssistantMessage("assistant", `${localAnswer}\n\nFischer dopracowuje odpowiedź AI...`, "thinking");
+  dom.assistantAnswer.textContent = localAnswer;
   setAssistantBusy(true);
   try {
     const aiAnswer = await fetchFischerAi(
@@ -968,9 +968,8 @@ async function answerAssistant(question) {
     dom.assistantAnswer.textContent = aiAnswer;
   } catch (error) {
     console.warn("Fischer AI nie odpowiedział", error);
-    const fallback = `${localAnswer}\n\nGemini tym razem nie odpowiedziało poprawnie, więc Fischer pokazuje lokalną podpowiedź.`;
-    updateAssistantMessage(pendingId, fallback, "warn");
-    dom.assistantAnswer.textContent = fallback;
+    updateAssistantMessage(pendingId, localAnswer);
+    dom.assistantAnswer.textContent = localAnswer;
   } finally {
     setAssistantBusy(false);
   }
