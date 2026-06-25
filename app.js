@@ -956,19 +956,20 @@ async function answerAssistant(question) {
   dom.assistantAnswer.textContent = localAnswer;
   setAssistantBusy(true);
   try {
-    const aiAnswer = await fetchFischerAi(
+    const aiResult = await fetchFischerAi(
       userQuestion,
       buildFischerContext(userQuestion, score, now, state.weather.daily, state.weather.hourly, waterTemp, localAnswer),
       endpoint
     );
-    if (isIncompleteFischerAnswer(aiAnswer)) {
+    const aiAnswer = aiResult.answer;
+    if (aiResult.provider !== "local" && isIncompleteFischerAnswer(aiAnswer)) {
       throw new Error("Gemini zwrócił urwaną odpowiedź");
     }
-    updateAssistantMessage(pendingId, aiAnswer);
+    updateAssistantMessage(pendingId, aiAnswer, aiResult.provider === "local" ? "warn" : "normal");
     dom.assistantAnswer.textContent = aiAnswer;
   } catch (error) {
     console.warn("Fischer AI nie odpowiedział", error);
-    updateAssistantMessage(pendingId, localAnswer);
+    updateAssistantMessage(pendingId, localAnswer, "warn");
     dom.assistantAnswer.textContent = localAnswer;
   } finally {
     setAssistantBusy(false);
@@ -1137,7 +1138,11 @@ async function fetchFischerAi(question, context, endpoint) {
     if (!response.ok) throw new Error(data.error || `Błąd Fischera AI: ${response.status}`);
     const answer = String(data.answer || "").trim();
     if (!answer) throw new Error("Pusta odpowiedź z Gemini");
-    return answer;
+    return {
+      answer,
+      provider: String(data.provider || "ai"),
+      model: String(data.model || ""),
+    };
   } finally {
     window.clearTimeout(timeoutId);
   }
